@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digit Recognition</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app">
+    <section class="card hero">
+      <div class="hero-top">
+        <h1>Reconocimiento de números</h1>
+        <span id="model-status" class="status">Cargando modelo...</span>
+      </div>
+      <div class="mode-controls">
+        <!-- p class="subtitle">Modo de juego: </p -->
+        <button id="test-btn" type="button" class="mode-btn active">Prueba</button>
+        <button id="train-btn" type="button" class="mode-btn">Entrena</button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="card panel">
+        <div class="panel-header">
+          <h2 class="centered">Lienzo</h2>
+          <p id="mode-message" class="mode-message">Dibuja un número y pulsa predecir.</p>
+        </div>
+
+        <div class="canvas-shell">
+          <canvas id="draw-canvas" width="280" height="280" aria-label="Lienzo para dibujar números"></canvas>
+        </div>
+
+        <div class="controls">
+          <button id="predict-btn" type="button">Predecir</button>
+          <button id="clear-btn" type="button" class="ghost">Limpiar</button>
+          <label class="upload">
+            <input id="image-input" type="file" accept="image/*">
+            <span>Subir imagen</span>
+          </label>
+        </div>
+      </article>
+
+      <article class="card panel results">
+        <div class="panel-header">
+          <h2 class="centered">Predicción</h2>
+          <p></p>
+        </div>
+
+        <div class="result-main">
+          <div class="preview-block">
+            <canvas id="preview-canvas" width="28" height="28" aria-label="Vista previa de entrada al modelo"></canvas>
+          </div>
+
+          <div class="prediction-block">
+            <p id="prediction" class="prediction">-</p>
+            <p id="confidence" class="confidence"></p>
+            <p id="error-message" class="error-message" hidden></p>
+          </div>
+        </div>
+
+        <div id="bars" class="bars" aria-label="Probabilidades del modelo"></div>
+
+        <div id="train-feedback" class="train-feedback" hidden>
+          <p id="train-icon" class="train-icon" aria-live="polite"></p>
+          <button id="ready-btn" type="button" class="ready-btn">Listo</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

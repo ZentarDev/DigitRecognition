@@ -1,0 +1,389 @@
+:root {
+  color-scheme: dark;
+  --bg: #111111;
+  --panel: #1a1a1a;
+  --panel-soft: #222222;
+  --line: #2f2f2f;
+  --text: #f3f3f3;
+  --muted: #a0a0a0;
+  --accent: #45c4f6;
+  --accent-soft: rgba(246, 201, 69, 0.18);
+  --danger: #ef6a6a;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(246, 201, 69, 0.14), transparent 28%),
+    linear-gradient(180deg, #121212 0%, #0c0c0c 100%);
+    color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
+}
+
+.centered {
+  text-align: center;
+}
+
+.card {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.hero {
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 0.95;
+}
+
+.subtitle {
+  max-width: 60ch;
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.status,
+.hint {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  font-size: 1rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.panel {
+  padding: 22px;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.panel-header p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.canvas-shell {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #050505;
+  border: 1px solid #303030;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#draw-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+  justify-content: center;
+}
+
+.mode-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+button,
+.upload span {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  min-height: 48px;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+button {
+  background: var(--accent);
+  color: #151515;
+  font-weight: 600;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+button:hover,
+.upload:hover span {
+  transform: translateY(-1px);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.mode-btn {
+  background: rgba(0, 183, 255, 0.14);
+  color: #cfefff;
+  border: 1px solid rgba(69, 196, 246, 0.72);
+}
+
+.mode-btn.active {
+  background: rgba(0, 183, 255, 0.568);
+  border-color: rgba(69, 196, 246, 0.72);
+  color: #ffffff;
+}
+
+.upload {
+  position: relative;
+}
+
+.upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload span {
+  display: inline-flex;
+  align-items: center;
+  background: var(--panel-soft);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.results .result-main {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.preview-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #050505;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  min-height: 112px;
+}
+
+#preview-canvas {
+  width: 84px;
+  height: 84px;
+  image-rendering: pixelated;
+}
+
+.label {
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.prediction {
+  font-size: clamp(2.8rem, 8vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.confidence {
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.error-message {
+  margin-top: 10px;
+  color: var(--danger);
+  line-height: 1.45;
+}
+
+.mode-message {
+  margin-top: 16px;
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 1.1rem;
+}
+
+.bars {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.train-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.train-feedback[hidden] {
+  display: none !important;
+}
+
+.train-icon {
+  min-height: 56px;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.train-icon.success {
+  color: #92d19b;
+}
+
+.train-icon.fail {
+  color: var(--danger);
+}
+
+.ready-btn {
+  min-width: 160px;
+  background: rgba(0, 183, 255, 0.568);
+  border-color: rgba(69, 196, 246, 0.72);
+  color: #ffffff;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 24px 1fr 60px;
+  gap: 10px;
+  align-items: center;
+}
+
+.bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #2a2a2a;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent) 0%, #88b7ff 100%);
+}
+
+.bar-value,
+.bar-label {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.ok {
+  color: #92d19b;
+}
+
+.error {
+  color: var(--danger);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .app {
+    width: min(100% - 20px, 1120px);
+    padding: 16px 0 24px;
+  }
+
+  .hero,
+  .panel {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .hero-top,
+  .mode-controls {
+    flex-direction: column;
+  }
+
+  .results .result-main {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  button,
+  .upload,
+  .upload span {
+    width: 100%;
+  }
+
+  .bar {
+    grid-template-columns: 20px 1fr 54px;
+  }
+}
