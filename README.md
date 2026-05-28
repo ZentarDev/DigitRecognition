@@ -31,3 +31,16 @@ http://localhost:8000
 ## Probar en web
 
 Para probarlo sin instalar nada en tu equipo, puedes visitar este [link](https://zentardev.github.io/DigitRecognition).
+
+## GitHub Pages
+
+El proyecto incluye un workflow en `.github/workflows/deploy-pages.yml` para desplegar automáticamente con GitHub Actions.
+
+Si GitHub muestra un error de Pages en el primer despliegue de un repositorio nuevo:
+
+1. Ve a `Settings`.
+2. Entra en `Pages`.
+3. En `Source`, selecciona `GitHub Actions`.
+4. Guarda.
+
+Después, vuelve a lanzar el workflow o haz otro `push` a `main`.
