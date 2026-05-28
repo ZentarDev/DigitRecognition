@@ -70,11 +70,11 @@ async function loadModel() {
     clearError();
 
     if (typeof tf === "undefined") {
-      throw new Error("TensorFlow.js no se ha cargado. Revisa tu conexion o la CDN.");
+      throw new Error("TensorFlow.js no se ha cargado.");
     }
 
     if (window.location.protocol === "file:") {
-      throw new Error("Estas abriendo la web con file://. Usa un servidor local.");
+      throw new Error("Usa un servidor local, no file://.");
     }
 
     modelStatusElement.textContent = "Cargando modelo...";
@@ -100,7 +100,7 @@ async function loadModel() {
     modelStatusElement.classList.remove("ok");
     modelStatusElement.classList.add("error");
     confidenceElement.textContent = "Corrige la carga del modelo para poder predecir";
-    showError(`${error.message} Ruta usada: ${MODEL_URL}`);
+    showError(`${error.message}`);
   }
 }
 
