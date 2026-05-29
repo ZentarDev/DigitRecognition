@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const url = (path) => new URL(path, window.location.href).href;
 
-const MODEL_URL = url("./model/model.json");
+const MODEL_URL = url("./model/model_v2/model.json");
 const AUDIO_URLS = {
   correct: url("./assets/audios/correct.mp3"),
   incorrect: url("./assets/audios/incorrect.mp3"),
@@ -299,13 +299,75 @@ function normalizeDType(object) {
 
 async function buildModelArtifacts(modelJson) {
   const manifest = modelJson.weightsManifest || [];
-  const weightSpecs = manifest.flatMap((entry) => entry.weights).map((spec) => ({
-    ...spec,
-    name: normalizeWeightName(spec.name),
-  }));
-  const weightData = concatArrayBuffers(await Promise.all(
+  const allWeights = manifest.flatMap((entry) => entry.weights);
+  const filteredWeights = allWeights.filter((spec) => !spec.name.startsWith("optimizer/"));
+
+  function getKerasLayers(topology) {
+    if (!topology) return [];
+    if (Array.isArray(topology.layers)) return topology.layers;
+    if (topology.model_config?.config?.layers) return topology.model_config.config.layers;
+    if (topology.config?.layers) return topology.config.layers;
+    if (topology.model_config?.layers) return topology.model_config.layers;
+    return [];
+  }
+
+  const layers = getKerasLayers(modelJson.modelTopology);
+  const layerMap = new Map();
+  layers.forEach((layer) => {
+    const name = layer.config?.name || layer.name || (layer.config && layer.config.name);
+    const className = layer.class_name || layer.className || layer['class_name'] || "";
+    if (name) layerMap.set(name, { className, config: layer.config || {} });
+  });
+
+  function remapWeightName(origName) {
+    let name = origName.replace(/:0$/, "").replace(/^sequential_1\//, "").replace(/^sequential\//, "").replace(/^model\//, "");
+    const m = name.match(/^layers\/([^/]+)\/vars\/(\d+)$/);
+    if (!m) return name;
+    const layerName = m[1];
+    const idx = Number(m[2]);
+    const layerInfo = layerMap.get(layerName);
+    if (!layerInfo) return `${layerName}/vars/${idx}`;
+    const className = layerInfo.className;
+    const cfg = layerInfo.config || {};
+    let param;
+    if (className === "BatchNormalization") {
+      const scale = cfg.scale !== undefined ? cfg.scale : true;
+      const center = cfg.center !== undefined ? cfg.center : true;
+      const names = [];
+      if (scale) names.push("gamma");
+      if (center) names.push("beta");
+      names.push("moving_mean", "moving_variance");
+      param = names[idx] || `vars/${idx}`;
+    } else if (className === "Conv2D" || className === "Conv1D" || className === "Conv3D") {
+      const useBias = cfg.use_bias !== undefined ? cfg.use_bias : (cfg.useBias !== undefined ? cfg.useBias : true);
+      const names = useBias ? ["kernel", "bias"] : ["kernel"];
+      param = names[idx] || `vars/${idx}`;
+    } else if (className === "DepthwiseConv2D") {
+      const useBias = cfg.use_bias !== undefined ? cfg.use_bias : true;
+      const names = useBias ? ["depthwise_kernel", "bias"] : ["depthwise_kernel"];
+      param = names[idx] || `vars/${idx}`;
+    } else if (className === "SeparableConv2D") {
+      const useBias = cfg.use_bias !== undefined ? cfg.use_bias : true;
+      const names = useBias ? ["depthwise_kernel", "pointwise_kernel", "bias"] : ["depthwise_kernel", "pointwise_kernel"];
+      param = names[idx] || `vars/${idx}`;
+    } else if (className === "Dense") {
+      const useBias = cfg.use_bias !== undefined ? cfg.use_bias : (cfg.useBias !== undefined ? cfg.useBias : true);
+      const names = useBias ? ["kernel", "bias"] : ["kernel"];
+      param = names[idx] || `vars/${idx}`;
+    } else {
+      const fallback = ["kernel", "bias", "gamma", "beta", "moving_mean", "moving_variance"];
+      param = fallback[idx] || `vars/${idx}`;
+    }
+    return `${layerName}/${param}`;
+  }
+
+  const weightSpecs = filteredWeights.map((spec) => ({ ...spec, name: remapWeightName(spec.name) }));
+
+  const allBuffers = await Promise.all(
     manifest.flatMap((entry) => entry.paths.map((path) => fetchWeight(path)))
-  ));
+  );
+
+  const weightData = extractModelWeights(allBuffers, allWeights, filteredWeights);
 
   return {
     modelTopology: modelJson.modelTopology,
@@ -315,6 +377,39 @@ async function buildModelArtifacts(modelJson) {
     weightSpecs,
     weightData,
   };
+}
+
+function extractModelWeights(buffers, allWeights, filteredWeights) {
+  const combined = new Uint8Array(concatArrayBuffers(buffers));
+  const nameToIndex = new Map(allWeights.map((s, i) => [s.name, i]));
+
+  function bytesPerElement(dtype) {
+    if (!dtype) return 4;
+    const map = { float32: 4, int32: 4, bool: 1, float16: 2, uint8: 1, int16: 2, int8: 1, uint16: 2, complex64: 8 };
+    return map[dtype] || 4;
+  }
+
+  let offset = 0;
+  const offsets = allWeights.map((spec) => {
+    const start = offset;
+    const elemCount = Array.isArray(spec.shape) ? spec.shape.reduce((a, b) => a * b, 1) : 0;
+    const byteSize = spec.quantization?.original_size || (elemCount * bytesPerElement(spec.dtype));
+    offset += byteSize;
+    return start;
+  });
+
+  const chunks = filteredWeights.map((spec) => {
+    const originalIndex = nameToIndex.get(spec.name);
+    if (originalIndex === undefined) {
+      throw new Error("Peso no encontrado en el manifest original: " + spec.name);
+    }
+    const start = offsets[originalIndex];
+    const elemCount = Array.isArray(spec.shape) ? spec.shape.reduce((a, b) => a * b, 1) : 0;
+    const size = spec.quantization?.original_size || (elemCount * bytesPerElement(spec.dtype));
+    return combined.slice(start, start + size);
+  });
+
+  return concatArrayBuffers(chunks.map(c => c.buffer));
 }
 
 async function fetchWeight(path) {
@@ -336,7 +431,11 @@ function concatArrayBuffers(buffers) {
 }
 
 function normalizeWeightName(name) {
-  return name.replace(/^sequential_1\//, "");
+  return name
+    .replace(/^sequential_1\//, "")
+    .replace(/^model\//, "")
+    .replace(/^sequential\//, "")
+    .replace(/:0$/, "");
 }
 
 function visitObject(value, visitor) {
