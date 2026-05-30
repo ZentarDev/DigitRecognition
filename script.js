@@ -258,8 +258,8 @@ function updatePredictionText(bestDigit, confidence) {
 
   const guessedCorrectly = bestDigit === state.targetDigit;
   elements.confidence.textContent = guessedCorrectly
-    ? "El modelo v2 ha acertado con un " + confidence.toFixed(1) + "% de confianza"
-    : "El modelo v2 ha dicho " + bestDigit + ", pero habia que dibujar un " + state.targetDigit + ". Confianza: " + confidence.toFixed(1) + "%";
+    ? "El modelo ha acertado con un " + confidence.toFixed(1) + "% de confianza"
+    : "El modelo ha dicho " + bestDigit + ", pero habia que dibujar un " + state.targetDigit + ". Confianza: " + confidence.toFixed(1) + "%";
   playTrainingSound(guessedCorrectly);
   showTrainingFeedback(guessedCorrectly);
   elements.modeMessage.textContent = "Pulsa Listo para continuar.";
