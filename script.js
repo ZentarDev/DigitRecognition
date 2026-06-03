@@ -20,7 +20,6 @@ const elements = {
   previewCanvas: $("preview-canvas"),
   predictButton: $("predict-btn"),
   clearButton: $("clear-btn"),
-  imageInput: $("image-input"),
   testButton: $("test-btn"),
   trainButton: $("train-btn"),
   readyButton: $("ready-btn"),
@@ -66,7 +65,6 @@ function init() {
 function bindEvents() {
   elements.predictButton.addEventListener("click", predictDigit);
   elements.clearButton.addEventListener("click", clearCanvas);
-  elements.imageInput.addEventListener("change", handleImageUpload);
   elements.testButton.addEventListener("click", () => setMode("test"));
   elements.trainButton.addEventListener("click", () => setMode("train"));
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
@@ -188,32 +186,10 @@ function clearCanvas() {
   fillCanvas(drawContext, CANVAS_SIZE, CANVAS_SIZE);
   fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
   elements.prediction.textContent = "-";
-  elements.confidence.textContent = "Esperando entrada";
+  elements.confidence.textContent = "";
   setModeMessage();
   if (state.mode !== "train") hideTrainingFeedback();
   updateBars(new Array(CLASS_COUNT).fill(0));
-}
-
-function handleImageUpload(event) {
-  const [file] = event.target.files || [];
-  if (!file) return;
-
-  const image = new Image();
-  const objectUrl = URL.createObjectURL(file);
-  image.onload = () => {
-    fillCanvas(drawContext, CANVAS_SIZE, CANVAS_SIZE);
-    drawImageContained(image);
-    URL.revokeObjectURL(objectUrl);
-    elements.imageInput.value = "";
-  };
-  image.src = objectUrl;
-}
-
-function drawImageContained(image) {
-  const scale = Math.min(CANVAS_SIZE / image.width, CANVAS_SIZE / image.height);
-  const width = image.width * scale;
-  const height = image.height * scale;
-  drawContext.drawImage(image, (CANVAS_SIZE - width) / 2, (CANVAS_SIZE - height) / 2, width, height);
 }
 
 async function predictDigit() {
