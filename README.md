@@ -2,6 +2,13 @@
 
 Aplicación web para reconocer dígitos dibujados a mano con un modelo exportado desde TensorFlow.js.
 
+## Rendimiento del modelo
+
+<p align="center">
+    <img src="./assets/images/loss_accuracy_figure.png" alt="Loss and Accuracy figure" width="1000">
+    <img src="./assets/images/confusion_matrix.png" alt="Confusion Matrix" width="500">
+</p>
+
 ## Dataset utilizado
 
 Para entrenar a este modelo se ha usado el dataset [MNIST](https://en.wikipedia.org/wiki/MNIST_database).
