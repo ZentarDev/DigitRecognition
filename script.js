@@ -320,7 +320,7 @@ async function buildModelArtifacts(modelJson) {
   });
 
   function remapWeightName(origName) {
-    let name = origName.replace(/:0$/, "").replace(/^sequential_1\//, "").replace(/^sequential\//, "").replace(/^model\//, "");
+    let name = origName.replace(/:0$/, "").replace(/^sequential_1\//, "").replace(/^sequential\//, "").replace(/^models\//, "");
     const m = name.match(/^layers\/([^/]+)\/vars\/(\d+)$/);
     if (!m) return name;
     const layerName = m[1];
