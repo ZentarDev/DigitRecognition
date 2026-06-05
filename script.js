@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const url = (path) => new URL(path, window.location.href).href;
 
-const MODEL_URL = url("./model/model_v2/model.json");
+const MODEL_URL = url("./models/model_v2/model.json");
 const AUDIO_URLS = {
   correct: url("./assets/audios/correct.mp3"),
   incorrect: url("./assets/audios/incorrect.mp3"),
@@ -106,22 +106,22 @@ async function loadModel() {
     if (typeof tf === "undefined") throw new Error("TensorFlow.js no se ha cargado.");
     if (window.location.protocol === "file:") throw new Error("Usa un servidor local, no file://.");
 
-    elements.modelStatus.textContent = "Cargando modelo...";
+    elements.modelStatus.textContent = "Cargando modelo v2...";
     const response = await fetch(MODEL_URL);
     if (!response.ok) throw new Error("No se pudo descargar model.json (" + response.status + ")");
 
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
-    elements.modelStatus.textContent = "Modelo listo";
+    elements.modelStatus.textContent = "Modelo v2 listo";
     elements.modelStatus.classList.remove("error");
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
   } catch (error) {
     console.error(error);
-    elements.modelStatus.textContent = "No se pudo cargar el modelo";
+    elements.modelStatus.textContent = "No se pudo cargar el modelo v2";
     elements.modelStatus.classList.remove("ok");
     elements.modelStatus.classList.add("error");
-    elements.confidence.textContent = "Corrige la carga del modelo para poder predecir";
+    elements.confidence.textContent = "Corrige la carga del modelo v2 para poder predecir";
     showError(error.message);
   }
 }
@@ -195,8 +195,8 @@ function clearCanvas() {
 async function predictDigit() {
   if (isCompactViewport()) showPredictionView();
   if (!state.model) {
-    elements.confidence.textContent = "El modelo aun no esta listo";
-    showError("El modelo no se ha cargado. Revisa el mensaje superior.");
+    elements.confidence.textContent = "El modelo v2 aun no esta listo";
+    showError("El modelo v2 no se ha cargado. Revisa el mensaje superior.");
     return;
   }
 
@@ -258,8 +258,8 @@ function updatePredictionText(bestDigit, confidence) {
 
   const guessedCorrectly = bestDigit === state.targetDigit;
   elements.confidence.textContent = guessedCorrectly
-    ? "El modelo ha acertado con un " + confidence.toFixed(1) + "% de confianza"
-    : "El modelo ha dicho " + bestDigit + ", pero habia que dibujar un " + state.targetDigit + ". Confianza: " + confidence.toFixed(1) + "%";
+    ? "El modelo v2 ha acertado con un " + confidence.toFixed(1) + "% de confianza"
+    : "El modelo v2 ha dicho " + bestDigit + ", pero habia que dibujar un " + state.targetDigit + ". Confianza: " + confidence.toFixed(1) + "%";
   playTrainingSound(guessedCorrectly);
   showTrainingFeedback(guessedCorrectly);
   elements.modeMessage.textContent = "Pulsa Listo para continuar.";
