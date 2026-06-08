@@ -48,6 +48,7 @@ const state = {
   mode: "test",
   targetDigit: null,
   compactPredictionVisible: false,
+  readyVisible: false,
   thinkProblem: null,
   lastThinkProblemKey: null,
 };
@@ -74,14 +75,17 @@ function bindEvents() {
   elements.clearButton.addEventListener("click", clearCanvas);
   elements.testButton.addEventListener("click", () => {
     setMode("test");
+    openPopupButton.textContent = "Prueba - Cambiar modo"
     hidePopup();
   });
   elements.trainButton.addEventListener("click", () => {
     setMode("train");
+    openPopupButton.textContent = "Entrena - Cambiar modo"
     hidePopup();
   });
   elements.thinkButton.addEventListener("click", () => {
     setMode("think");
+    openPopupButton.textContent = "Piensa - Cambiar modo"
     hidePopup();
   });
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
@@ -217,11 +221,11 @@ function clearCanvas() {
   fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
   elements.prediction.textContent = "-";
   elements.confidence.textContent = "";
-  if (state.mode === "test") {
-    hideTrainingFeedback();
-  }
+  state.readyVisible = false;
+  hideTrainingFeedback();
   setModeMessage();
   updateBars(new Array(CLASS_COUNT).fill(0));
+  syncResponsivePanels();
 }
 
 
@@ -248,6 +252,8 @@ async function predictDigit() {
     elements.prediction.textContent = String(bestDigit);
     updatePredictionText(bestDigit, confidence);
     updateBars(probabilities);
+    state.readyVisible = true;
+    syncResponsivePanels();
   } catch (error) {
     console.error(error);
     elements.confidence.textContent = "Error al ejecutar la predicción";
@@ -531,13 +537,14 @@ function syncResponsivePanels() {
   }
 
   elements.readyButton.textContent = "Listo";
-  elements.trainFeedback.hidden = state.mode === "train" ? !showPrediction : state.mode !== "think";
+  elements.trainFeedback.hidden = !state.readyVisible;
   elements.drawCard.classList.toggle("is-prediction-view", showPrediction);
 }
 
 function setMode(mode) {
   state.mode = mode;
   state.compactPredictionVisible = false;
+  state.readyVisible = false;
   state.targetDigit = mode === "train" ? nextTrainingDigit(state.targetDigit) : null;
   state.thinkProblem = null;
   updateModeUI();
@@ -553,7 +560,6 @@ function updateModeUI() {
   elements.testButton.classList.toggle("active", state.mode === "test");
   elements.trainButton.classList.toggle("active", state.mode === "train");
   elements.thinkButton.classList.toggle("active", state.mode === "think");
-  elements.trainFeedback.hidden = state.mode !== "train";
   hideTrainingFeedback();
   setModeMessage();
   syncResponsivePanels();
@@ -676,8 +682,7 @@ function handleReadyButtonClick() {
     return;
   }
 
-  if (isCompactViewport()) {
-    showCanvasView();
+  if (state.mode === "test") {
     clearCanvas();
   }
 }
