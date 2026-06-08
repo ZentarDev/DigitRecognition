@@ -23,6 +23,7 @@ const elements = {
   testButton: $("test-btn"),
   trainButton: $("train-btn"),
   readyButton: $("ready-btn"),
+  thinkButton: $("think-btn"),
   prediction: $("prediction"),
   confidence: $("confidence"),
   errorMessage: $("error-message"),
@@ -47,9 +48,15 @@ const state = {
   mode: "test",
   targetDigit: null,
   compactPredictionVisible: false,
+  thinkProblem: null,
+  lastThinkProblemKey: null,
 };
 
 let probabilityBars = [];
+
+const modal = document.getElementById("modal");
+const openPopupButton = document.getElementById("open-popup");
+const closePopupButton = document.getElementById("close-popup");
 
 init();
 
@@ -65,9 +72,24 @@ function init() {
 function bindEvents() {
   elements.predictButton.addEventListener("click", predictDigit);
   elements.clearButton.addEventListener("click", clearCanvas);
-  elements.testButton.addEventListener("click", () => setMode("test"));
-  elements.trainButton.addEventListener("click", () => setMode("train"));
+  elements.testButton.addEventListener("click", () => {
+    setMode("test");
+    hidePopup();
+  });
+  elements.trainButton.addEventListener("click", () => {
+    setMode("train");
+    hidePopup();
+  });
+  elements.thinkButton.addEventListener("click", () => {
+    setMode("think");
+    hidePopup();
+  });
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
+  openPopupButton.addEventListener("click", showPopup);
+  closePopupButton.addEventListener("click", hidePopup);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) hidePopup();
+  });
   elements.drawCanvas.addEventListener("pointerdown", startDrawing);
   elements.drawCanvas.addEventListener("pointermove", drawStroke);
 
@@ -80,6 +102,14 @@ function bindEvents() {
   } else {
     COMPACT_QUERY.addListener(syncResponsivePanels);
   }
+}
+
+function showPopup() {
+  modal.hidden = false;
+}
+
+function hidePopup() {
+  modal.hidden = true;
 }
 
 function setupCanvases() {
@@ -187,10 +217,13 @@ function clearCanvas() {
   fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
   elements.prediction.textContent = "-";
   elements.confidence.textContent = "";
+  if (state.mode === "test") {
+    hideTrainingFeedback();
+  }
   setModeMessage();
-  if (state.mode !== "train") hideTrainingFeedback();
   updateBars(new Array(CLASS_COUNT).fill(0));
 }
+
 
 async function predictDigit() {
   if (isCompactViewport()) showPredictionView();
@@ -251,6 +284,18 @@ function createInputTensor() {
 }
 
 function updatePredictionText(bestDigit, confidence) {
+  if (state.mode === "think") {
+    const correctAnswer = state.thinkProblem?.answer;
+    const guessedCorrectly = bestDigit === correctAnswer;
+    elements.confidence.textContent = guessedCorrectly
+      ? "El modelo ha acertado con un " + confidence.toFixed(1) + "% de confianza"
+      : "El resultado era " + correctAnswer + ", pero el modelo ha dicho que es un " + bestDigit + ". Confianza: " + confidence.toFixed(1) + "%";
+    playTrainingSound(guessedCorrectly);
+    showTrainingFeedback(guessedCorrectly);
+    elements.modeMessage.textContent = "Dibuja el resultado de una nueva operación.";
+    return;
+  }
+
   if (state.mode !== "train") {
     elements.confidence.textContent = "Confianza: " + confidence.toFixed(1) + "%";
     return;
@@ -486,29 +531,104 @@ function syncResponsivePanels() {
   }
 
   elements.readyButton.textContent = "Listo";
-  elements.trainFeedback.hidden = !showPrediction;
+  elements.trainFeedback.hidden = state.mode === "train" ? !showPrediction : state.mode !== "think";
   elements.drawCard.classList.toggle("is-prediction-view", showPrediction);
 }
 
 function setMode(mode) {
   state.mode = mode;
+  state.compactPredictionVisible = false;
   state.targetDigit = mode === "train" ? nextTrainingDigit(state.targetDigit) : null;
+  state.thinkProblem = null;
   updateModeUI();
-  clearCanvas();
+
+  if (mode === "think") {
+    startThinkRound();
+  } else {
+    clearCanvas();
+  }
 }
 
 function updateModeUI() {
   elements.testButton.classList.toggle("active", state.mode === "test");
   elements.trainButton.classList.toggle("active", state.mode === "train");
+  elements.thinkButton.classList.toggle("active", state.mode === "think");
   elements.trainFeedback.hidden = state.mode !== "train";
   hideTrainingFeedback();
   setModeMessage();
+  syncResponsivePanels();
 }
 
 function setModeMessage() {
-  elements.modeMessage.textContent = state.mode === "train"
-    ? state.targetDigit === null ? "Prepara el siguiente número." : "Dibuja el número " + state.targetDigit + "."
-    : "Dibuja un número y pulsa predecir.";
+  if (state.mode === "train") {
+    elements.modeMessage.textContent = state.targetDigit === null
+      ? "Prepara el siguiente número."
+      : "Dibuja el número " + state.targetDigit + ".";
+    return;
+  }
+
+  if (state.mode === "think") {
+    if (!state.thinkProblem) {
+      elements.modeMessage.textContent = "Dibuja el resultado de una operación sencilla.";
+      return;
+    }
+
+    elements.modeMessage.textContent = "Dibuja el resultado de " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
+    return;
+  }
+
+  elements.modeMessage.textContent = "Dibuja un número y pulsa predecir.";
+}
+
+function startThinkRound() {
+  state.thinkProblem = createThinkProblem();
+  clearCanvas();
+  setModeMessage();
+}
+
+function createThinkProblem() {
+  const operators = ["+", "-", "x"];
+  let problem;
+  let attempts = 0;
+
+  do {
+    const operator = operators[Math.floor(Math.random() * operators.length)];
+
+    if (operator === "+") {
+      let left = randomDigit();
+      let right = randomDigit();
+      while (left + right > 9) {
+        left = randomDigit();
+        right = randomDigit();
+      }
+      problem = { left, right, operator, answer: left + right };
+    } else if (operator === "-") {
+      let left = randomDigit();
+      let right = randomDigit();
+      while (left < right) {
+        left = randomDigit();
+        right = randomDigit();
+      }
+      problem = { left, right, operator, answer: left - right };
+    } else {
+      let left = randomDigit();
+      let right = randomDigit();
+      while (left * right > 9) {
+        left = randomDigit();
+        right = randomDigit();
+      }
+      problem = { left, right, operator, answer: left * right };
+    }
+
+    attempts += 1;
+  } while (problemKey(problem) === state.lastThinkProblemKey && attempts < 20);
+
+  state.lastThinkProblemKey = problemKey(problem);
+  return problem;
+}
+
+function problemKey(problem) {
+  return problem.left + "|" + problem.operator + "|" + problem.right;
 }
 
 function nextTrainingDigit(previousDigit) {
@@ -524,7 +644,6 @@ function randomDigit() {
 
 function showTrainingFeedback(isSuccess) {
   if (state.mode !== "train") {
-    hideTrainingFeedback();
     return;
   }
 
@@ -551,6 +670,12 @@ function handleReadyButtonClick() {
     advanceTrainingRound();
     return;
   }
+
+  if (state.mode === "think") {
+    startThinkRound();
+    return;
+  }
+
   if (isCompactViewport()) {
     showCanvasView();
     clearCanvas();

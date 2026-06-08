@@ -16,8 +16,21 @@
         <span id="model-status" class="status">Cargando modelo...</span>
       </div>
       <div class="mode-controls">
-        <button id="test-btn" type="button" class="mode-btn active">Prueba</button>
-        <button id="train-btn" type="button" class="mode-btn">Entrena</button>
+        <button id="open-popup" type="button" class="mode-btn active">Cambiar modo de juego</button>
+      </div>
+    </div>
+    
+    <div id="modal" class="modal-overlay" hidden>
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="mode-popup-title">
+        <div class="modal-header">
+          <p id="mode-popup-title" class="subtitle centered">Elige el modo de juego:</p>
+          <button id="close-popup" type="button" class="close" aria-label="Cerrar popup">&times;</button>
+        </div>
+        <div class="mode-controls">
+          <button id="test-btn" type="button" class="mode-btn active">Prueba</button>
+          <button id="train-btn" type="button" class="mode-btn">Entrena</button>
+          <button id="think-btn" type="button" class="mode-btn">Piensa</button>
+        </div>
       </div>
     </div>
 

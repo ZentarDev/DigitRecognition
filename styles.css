@@ -104,6 +104,10 @@ h1 {
   gap: 20px;
 }
 
+.layout.is-think-mode {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .panel {
   padding: 22px;
 }
@@ -135,6 +139,42 @@ h1 {
   display: block;
   touch-action: none;
   cursor: crosshair;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-overlay[hidden] {
+  display: none !important;
+}
+
+.modal-content {
+  position: relative;
+  width: min(350px, 100%);
+  border-radius: 24px;
+  background-color: var(--panel-soft);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-header .subtitle {
+  margin: 0;
 }
 
 .controls {
@@ -186,6 +226,14 @@ button:hover {
 }
 
 button.ghost {
+  background: var(--line);
+  color: var(--text);
+}
+
+button.close {
+  border-radius: 999px;
+  width: 50px;
+  height: 50px;
   background: var(--line);
   color: var(--text);
 }
@@ -303,6 +351,8 @@ button.ghost {
   font-size: 1.1rem;
 }
 
+
+
 .bars {
   display: grid;
   gap: 10px;
@@ -416,4 +466,5 @@ button.ghost {
   .bar {
     grid-template-columns: 20px 1fr 54px;
   }
+
 }

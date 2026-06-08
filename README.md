@@ -21,6 +21,12 @@ Para entrenar a este modelo se ha usado el dataset [MNIST](https://en.wikipedia.
 - `model/`: modelo TensorFlow.js y el archivo .ipynb donde se ha entrenado
 - `assets/audios/`: sonidos de acierto y error
 
+## Modos de juego
+
+- `Prueba`: dibuja el número que quieras y mira si lo reconoce.
+- `Entrena`: dibuja el número que te indica.
+- `Piensa`: dibuja el resultado de la operacion que te indica.
+
 ## Ejecutar en local
 
 No se puede abrir `index.html` con `file://`. Usa un servidor local:
