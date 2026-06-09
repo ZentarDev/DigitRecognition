@@ -80,19 +80,19 @@ function bindEvents() {
   elements.testButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("test");
-    openPopupButton.textContent = "Prueba - Cambiar modo"
+    openPopupButton.textContent = "Test - Change mode"
     hidePopup();
   });
   elements.trainButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("train");
-    openPopupButton.textContent = "Entrena - Cambiar modo"
+    openPopupButton.textContent = "Train - Change mode"
     hidePopup();
   });
   elements.thinkButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("think");
-    openPopupButton.textContent = "Piensa - Cambiar modo"
+    openPopupButton.textContent = "Think - Change mode"
     hidePopup();
   });
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
@@ -147,19 +147,19 @@ async function loadModel() {
     if (typeof tf === "undefined") throw new Error("TensorFlow.js has not been loaded.");
     if (window.location.protocol === "file:") throw new Error("Use a local server, not file://.");
 
-    elements.modelStatus.textContent = "Cargando modelo v3...";
+    elements.modelStatus.textContent = "Loading model v3...";
     const response = await fetch(MODEL_URL);
     if (!response.ok) throw new Error("Could not download model.json (" + response.status + ")");
 
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
-    elements.modelStatus.textContent = "Modelo v3 listo";
+    elements.modelStatus.textContent = "Model v3 ready";
     elements.modelStatus.classList.remove("error");
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
   } catch (error) {
     console.error("Failed to load model v3:", error);
-    elements.modelStatus.textContent = "No se pudo cargar el modelo v3";
+    elements.modelStatus.textContent = "Could not load model v3";
     elements.modelStatus.classList.remove("ok");
     elements.modelStatus.classList.add("error");
   }
@@ -238,8 +238,8 @@ async function predictDigit() {
   await sleep(100);
   if (isCompactViewport()) showPredictionView();
   if (!state.model) {
-    elements.confidence.textContent = "El modelo v3 aun no esta listo";
-    showError("El modelo v3 no se ha cargado. Revisa el mensaje superior.");
+    elements.confidence.textContent = "Model v3 is not ready yet";
+    showError("Model v3 has not been loaded. Check the status message above.");
     return;
   }
 
@@ -262,7 +262,7 @@ async function predictDigit() {
     syncResponsivePanels();
   } catch (error) {
     console.error(error);
-    elements.confidence.textContent = "Error al ejecutar la predicción";
+    elements.confidence.textContent = "Error while running the prediction";
     showError(error.message);
   } finally {
     inputTensor?.dispose();
@@ -300,26 +300,26 @@ function updatePredictionText(bestDigit, confidence) {
     const correctAnswer = state.thinkProblem?.answer;
     const guessedCorrectly = bestDigit === correctAnswer;
     elements.confidence.textContent = guessedCorrectly
-      ? "El modelo ha acertado con un " + confidence.toFixed(1) + "% de confianza"
-      : "El resultado era " + correctAnswer + ", pero el modelo ha dicho que es un " + bestDigit + ". Confianza: " + confidence.toFixed(1) + "%";
+      ? "The model guessed correctly with a " + confidence.toFixed(1) + "% confidence"
+      : "The correct answer was " + correctAnswer + ", but the model said it was a " + bestDigit + ". Confidence: " + confidence.toFixed(1) + "%";
     playTrainingSound(guessedCorrectly);
     showTrainingFeedback(guessedCorrectly);
-    elements.modeMessage.textContent = "Dibuja el resultado de una nueva operación.";
+    elements.modeMessage.textContent = "Draw the result of a new operation.";
     return;
   }
 
   if (state.mode !== "train" && state.mode !== "think") {
-    elements.confidence.textContent = "Confianza: " + confidence.toFixed(1) + "%";
+    elements.confidence.textContent = "Confidence: " + confidence.toFixed(1) + "%";
     return;
   }
 
   const guessedCorrectly = bestDigit === state.targetDigit;
   elements.confidence.textContent = guessedCorrectly
-    ? "El modelo ha acertado con un " + confidence.toFixed(1) + "% de confianza"
-    :  "Había que dibujar un " + state.targetDigit + ", pero el modelo ha dicho que es un " + bestDigit + ". Confianza: " + confidence.toFixed(1) + "%";
+    ? "The model guessed correctly with a " + confidence.toFixed(1) + "% confidence"
+    :  "The target was " + state.targetDigit + ", but the model said it was a " + bestDigit + ". Confidence: " + confidence.toFixed(1) + "%";
   playTrainingSound(guessedCorrectly);
   showTrainingFeedback(guessedCorrectly);
-  elements.modeMessage.textContent = "Pulsa Listo para continuar.";
+  elements.modeMessage.textContent = "Press Ready to continue.";
 }
 
 function updateBars(probabilities) {
@@ -458,7 +458,7 @@ function extractModelWeights(buffers, allWeights, filteredWeights) {
   const chunks = filteredWeights.map((spec) => {
     const originalIndex = nameToIndex.get(spec.name);
     if (originalIndex === undefined) {
-      throw new Error("Peso no encontrado en el manifest original: " + spec.name);
+      throw new Error("Weight not found in the original manifest: " + spec.name);
     }
     const start = offsets[originalIndex];
     const elemCount = Array.isArray(spec.shape) ? spec.shape.reduce((a, b) => a * b, 1) : 0;
@@ -471,7 +471,7 @@ function extractModelWeights(buffers, allWeights, filteredWeights) {
 
 async function fetchWeight(path) {
   const response = await fetch(new URL(path, MODEL_URL).href);
-  if (!response.ok) throw new Error("No se pudo descargar " + path + " (" + response.status + ")");
+  if (!response.ok) throw new Error("Could not download " + path + " (" + response.status + ")");
   return response.arrayBuffer();
 }
 
@@ -542,7 +542,7 @@ function syncResponsivePanels() {
     elements.resultsCard.hidden = compactMode;
   }
 
-  elements.readyButton.textContent = "Listo";
+  elements.readyButton.textContent = "Ready";
   elements.trainFeedback.hidden = !state.readyVisible;
   elements.drawCard.classList.toggle("is-prediction-view", showPrediction);
 }
@@ -574,22 +574,22 @@ function updateModeUI() {
 function setModeMessage() {
   if (state.mode === "train") {
     elements.modeMessage.textContent = state.targetDigit === null
-      ? "Prepara el siguiente número."
-      : "Dibuja el número " + state.targetDigit + ".";
+      ? "Prepare the next digit."
+      : "Draw the digit " + state.targetDigit + ".";
     return;
   }
 
   if (state.mode === "think") {
     if (!state.thinkProblem) {
-      elements.modeMessage.textContent = "Dibuja el resultado de una operación sencilla.";
+      elements.modeMessage.textContent = "Draw the result of a simple operation.";
       return;
     }
 
-    elements.modeMessage.textContent = "Dibuja el resultado de " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
+    elements.modeMessage.textContent = "Draw the result of " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
     return;
   }
 
-  elements.modeMessage.textContent = "Dibuja un número y pulsa predecir.";
+  elements.modeMessage.textContent = "Draw a digit and press predict.";
 }
 
 function startThinkRound() {

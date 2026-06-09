@@ -1,113 +1,113 @@
 # Contributing
 
-Gracias por contribuir a `DigitRecognition`.
+Thank you for contributing to `DigitRecognition`.
 
-Este proyecto es una aplicación web estática que carga un modelo de TensorFlow.js para reconocer dígitos dibujados a mano. La prioridad es mantener la web simple, ligera y compatible con escritorio, móvil y GitHub Pages.
+This project is a static web app that loads a TensorFlow.js model to recognize handwritten digits. The priority is to keep the site simple, lightweight, and compatible with desktop, mobile, and GitHub Pages.
 
-## Objetivos del proyecto
+## Project objectives
 
-- Mantener una experiencia clara y rápida.
-- No introducir dependencias innecesarias.
-- Preservar la compatibilidad con despliegue estático.
-- Mantener la carga del modelo y los assets funcionando con rutas relativas.
+- Keep the experience clear and fast.
+- Do not introduce unnecessary dependencies.
+- Preserve compatibility with static deployment.
+- Keep model loading and assets working with relative paths.
 
-## Antes de contribuir
+## Before contributing
 
-Antes de empezar:
+Before begin:
 
-1. Revisa si el cambio ya está cubierto por un issue o una pull request.
-2. Mantén los cambios enfocados en un solo objetivo.
-3. Evita mezclar refactors grandes con cambios funcionales pequeños.
+1. Check whether the change is already covered by an issue or pull request.
+2. Keep the changes focused on a single goal.
+3. Avoid mixing large refactors with small functional changes.
 
-## Requisitos locales
+## Local requirements
 
-Este proyecto no necesita proceso de build.
+This project does not need a build process.
 
-Para ejecutarlo en local, usa un servidor HTTP:
+To run it locally, use an HTTP server:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Luego abre:
+Then open:
 
 ```text
 http://localhost:8000
 ```
 
-No uses `file://`, porque el navegador bloqueará la carga del modelo y otros assets.
+Do not use `file://`, because the browser will block the model and other asset loads.
 
-## Estructura del proyecto
+## Project structure
 
-- `index.html`: estructura de la interfaz
-- `styles.css`: estilos y responsive
-- `script.js`: lógica de UI, modos, carga del modelo y predicción
-- `model/`: artefactos del modelo TensorFlow.js
-- `assets/audios/`: audios del modo entrenamiento
-- `.github/workflows/`: despliegue automático a GitHub Pages
+- `index.html`: interface structure
+- `styles.css`: styles and responsive rules
+- `script.js`: UI, modes, model loading, and prediction logic
+- `model/`: TensorFlow.js model artifacts
+- `assets/audios/`: training mode audio
+- `.github/workflows/`: automated deployment to GitHub Pages
 
-## Flujo recomendado
+## Recommended flow
 
-1. Haz un fork del repositorio.
-2. Crea una rama nueva para tu cambio.
+1. Fork the repository.
+2. Create a new branch for your change.
 3. Implementa el cambio.
-4. Prueba la web en local.
-5. Abre una pull request con una descripción clara.
+4. Test the site locally.
+5. Open a pull request with a clear description.
 
-Ejemplo:
+Example:
 
 ```bash
-git checkout -b feature/mejora-entrenamiento
+git checkout -b feature/improve-training
 ```
 
-## Estándares de código
+## Code standards
 
 ### HTML
 
-- Usa HTML semántico cuando tenga sentido.
-- Mantén la estructura simple.
-- Evita añadir wrappers innecesarios.
+- Use semantic HTML when it makes sense.
+- Keep the structure simple.
+- Avoid adding unnecessary wrappers.
 
 ### CSS
 
-- Reutiliza clases existentes antes de crear nuevas.
-- Mantén el estilo visual actual.
-- Asegura que cualquier cambio siga funcionando en móvil.
-- Si añades reglas de visibilidad, ten cuidado con elementos que usen el atributo `hidden`.
+- Reuse existing classes before creating new ones.
+- Keep the current visual style.
+- Make sure any change still works on mobile.
+- If you add visibility rules, be careful with elements that use the `hidden` attribute.
 
 ### JavaScript
 
-- Mantén la lógica simple y legible.
-- Prefiere funciones pequeñas y específicas.
-- Evita dependencias externas nuevas salvo necesidad real.
-- No rompas la carga del modelo en GitHub Pages.
-- Si tocas el flujo de entrenamiento, prueba ambos modos: `Prueba` y `Entrena`.
+- Keep the logic simple and readable.
+- Prefer small, focused functions.
+- Avoid new external dependencies unless they are truly needed.
+- Do not break model loading on GitHub Pages.
+- If you touch the training flow, test both modes: `Test` and `Train`.
 
 ## Compatibilidad
 
-Cualquier contribución debe respetar:
+Any contribution must respect:
 
-- ejecución en navegador moderno
-- uso en escritorio y móvil
-- despliegue estático en GitHub Pages
+- execution in a modern browser
+- desktop and mobile use
+- static deployment on GitHub Pages
 - carga correcta de:
   - `model/model.json`
   - `model/group1-shard1of1.bin`
   - `assets/audios/*.mp3`
 
-## Pruebas mínimas
+## Minimum tests
 
-Antes de abrir una pull request, comprueba como mínimo:
+Before opening a pull request, check at least:
 
-1. Que la página carga correctamente.
-2. Que el modelo pasa a estado `Modelo listo`.
-3. Que `Predecir` funciona en modo `Prueba`.
-4. Que `Entrena` genera números y no repite el anterior.
-5. Que el tick/X y el botón `Listo` funcionan correctamente.
-6. Que los audios de acierto y error se reproducen en `Entrena`.
-7. Que el layout sigue siendo usable en móvil.
+1. The page loads correctly.
+2. The model reaches the `Model ready` state.
+3. `Predict` works in `Test` mode.
+4. `Train` generates digits and does not repeat the previous one.
+5. The tick/X and the `Ready` button work correctly.
+6. The success and error sounds play in `Train`.
+7. The layout is still usable on mobile.
 
-Si modificas `script.js`, valida también la sintaxis:
+If you modify `script.js`, also validate the syntax:
 
 ```bash
 node --check script.js
@@ -115,47 +115,47 @@ node --check script.js
 
 ## Pull requests
 
-Al abrir una PR, incluye:
+When opening a PR, include:
 
-- qué cambia
-- por qué cambia
-- cómo lo has probado
+- what changed
+- why it changed
+- how you tested it
 - capturas si el cambio afecta a la interfaz
 
-Un formato útil:
+A useful format:
 
 ```text
-Resumen:
+Summary:
 - ...
 
-Motivo:
+Reason:
 - ...
 
-Pruebas:
+Tests:
 - ...
 ```
 
-## Qué evitar
+## What to avoid
 
-Evita enviar PRs que:
+Avoid sending PRs that:
 
-- mezclen varios cambios no relacionados
-- rompan el despliegue estático
-- cambien nombres o rutas de archivos del modelo sin justificarlo
-- introduzcan un framework o build tool sin necesidad
-- modifiquen el comportamiento del modelo sin explicar el impacto
+- mix several unrelated changes
+- break static deployment
+- change model file names or paths without justification
+- introduce a framework or build tool without need
+- modify model behavior without explaining the impact
 
 ## Issues
 
-Si quieres reportar un problema, intenta incluir:
+If you want to report a problem, try to include:
 
-- navegador y versión
-- sistema operativo
-- pasos para reproducirlo
-- resultado esperado
-- resultado real
-- capturas o errores de consola si aplica
+- browser and version
+- operative sistem
+- steps to reproduce it
+- expected result
+- actual result
+- Console screenshots or errors, if applicable
 
-## Licencia
+## Licensee
 
-Al contribuir a este proyecto, aceptas que tu contribución se publique bajo la licencia del repositorio.
+By contributing to this project, you agree that your contribution will be published under the repository license.

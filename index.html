@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digit Recognition</title>
-  <link rel="icon" type="image/png" sizes="128x128" href="assets/images/favicon.png">
+  <link rel="icon" type="image/png" sizes="256x256" href="assets/images/favicon.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -13,23 +13,23 @@
     <div class="title-header">
       <div class="hero-top">
         <h1 class="centered">Digit Recognition</h1>
-        <span id="model-status" class="status">Cargando modelo...</span>
+        <span id="model-status" class="status">Loading model...</span>
       </div>
       <div class="mode-controls">
-        <button id="open-popup" type="button" class="mode-btn active pulse">Prueba - Cambiar modo</button>
+        <button id="open-popup" type="button" class="mode-btn active pulse">Test - Change mode</button>
       </div>
     </div>
     
     <div id="modal" class="modal-overlay" hidden>
       <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="mode-popup-title">
         <div class="modal-header">
-          <p id="mode-popup-title" class="subtitle centered">Elige el modo de juego:</p>
-          <button id="close-popup" type="button" class="close pulse" aria-label="Cerrar popup">&times;</button>
+          <p id="mode-popup-title" class="subtitle centered">Choose a game mode:</p>
+          <button id="close-popup" type="button" class="close pulse" aria-label="Close popup">&times;</button>
         </div>
         <div class="mode-controls">
-          <button id="test-btn" type="button" class="mode-btn active pulse">Prueba</button>
-          <button id="train-btn" type="button" class="mode-btn pulse">Entrena</button>
-          <button id="think-btn" type="button" class="mode-btn pulse">Piensa</button>
+          <button id="test-btn" type="button" class="mode-btn active pulse">Test</button>
+          <button id="train-btn" type="button" class="mode-btn pulse">Train</button>
+          <button id="think-btn" type="button" class="mode-btn pulse">Think</button>
         </div>
       </div>
     </div>
@@ -38,30 +38,30 @@
       <article id="draw-card" class="card panel">
         <div id="draw-content" class="draw-content">
           <div class="panel-header">
-            <h2 class="centered">Lienzo</h2>
-            <p id="mode-message" class="mode-message">Dibuja un número y pulsa predecir.</p>
+            <h2 class="centered">Canvas</h2>
+            <p id="mode-message" class="mode-message">Draw a digit and press predict.</p>
           </div>
 
           <div class="canvas-shell">
-            <canvas id="draw-canvas" width="280" height="280" aria-label="Lienzo para dibujar números"></canvas>
+            <canvas id="draw-canvas" width="280" height="280" aria-label="Canvas for drawing digits"></canvas>
           </div>
 
           <div class="controls">
-            <button id="clear-btn" type="button" class="ghost button-extended pulse">Limpiar</button>
-            <button id="predict-btn" type="button" class="button-extended pulse">Predecir</button>
+            <button id="clear-btn" type="button" class="ghost button-extended pulse">Clear</button>
+            <button id="predict-btn" type="button" class="button-extended pulse">Predict</button>
           </div>
         </div>
       </article>
 
       <article id="results-card" class="card panel results">
         <div class="panel-header">
-          <h2 class="centered">Predicción</h2>
+          <h2 class="centered">Prediction</h2>
           <p></p>
         </div>
 
         <div class="result-main">
           <div class="preview-block">
-            <canvas id="preview-canvas" width="28" height="28" aria-label="Vista previa de entrada al modelo"></canvas>
+            <canvas id="preview-canvas" width="28" height="28" aria-label="Preview of the model input"></canvas>
           </div>
 
           <div class="prediction-block">
@@ -71,11 +71,11 @@
           </div>
         </div>
 
-        <div id="bars" class="bars" aria-label="Probabilidades del modelo"></div>
+        <div id="bars" class="bars" aria-label="Model probabilities"></div>
 
         <div id="train-feedback" class="train-feedback" hidden>
           <p id="train-icon" class="train-icon" aria-live="polite"></p>
-          <button id="ready-btn" type="button" class="ready-btn pulse">Listo</button>
+          <button id="ready-btn" type="button" class="ready-btn pulse">Ready</button>
         </div>
       </article>
     </section>
