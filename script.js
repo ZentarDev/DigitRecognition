@@ -61,6 +61,10 @@ const closePopupButton = document.getElementById("close-popup");
 
 init();
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function init() {
   setupCanvases();
   buildProbabilityBars();
@@ -73,17 +77,20 @@ function init() {
 function bindEvents() {
   elements.predictButton.addEventListener("click", predictDigit);
   elements.clearButton.addEventListener("click", clearCanvas);
-  elements.testButton.addEventListener("click", () => {
+  elements.testButton.addEventListener("click", async () => {
+    await sleep(100);
     setMode("test");
     openPopupButton.textContent = "Prueba - Cambiar modo"
     hidePopup();
   });
-  elements.trainButton.addEventListener("click", () => {
+  elements.trainButton.addEventListener("click", async () => {
+    await sleep(100);
     setMode("train");
     openPopupButton.textContent = "Entrena - Cambiar modo"
     hidePopup();
   });
-  elements.thinkButton.addEventListener("click", () => {
+  elements.thinkButton.addEventListener("click", async () => {
+    await sleep(100);
     setMode("think");
     openPopupButton.textContent = "Piensa - Cambiar modo"
     hidePopup();
@@ -137,12 +144,12 @@ function fillCanvas(context, width, height) {
 async function loadModel() {
   try {
     clearError();
-    if (typeof tf === "undefined") throw new Error("TensorFlow.js no se ha cargado.");
-    if (window.location.protocol === "file:") throw new Error("Usa un servidor local, no file://.");
+    if (typeof tf === "undefined") throw new Error("TensorFlow.js has not been loaded.");
+    if (window.location.protocol === "file:") throw new Error("Use a local server, not file://.");
 
     elements.modelStatus.textContent = "Cargando modelo v3...";
     const response = await fetch(MODEL_URL);
-    if (!response.ok) throw new Error("No se pudo descargar model.json (" + response.status + ")");
+    if (!response.ok) throw new Error("Could not download model.json (" + response.status + ")");
 
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
@@ -151,12 +158,10 @@ async function loadModel() {
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
   } catch (error) {
-    console.error(error);
+    console.error("Failed to load model v3:", error);
     elements.modelStatus.textContent = "No se pudo cargar el modelo v3";
     elements.modelStatus.classList.remove("ok");
     elements.modelStatus.classList.add("error");
-    elements.confidence.textContent = "Corrige la carga del modelo v3 para poder predecir";
-    showError(error.message);
   }
 }
 
@@ -230,6 +235,7 @@ function clearCanvas() {
 
 
 async function predictDigit() {
+  await sleep(100);
   if (isCompactViewport()) showPredictionView();
   if (!state.model) {
     elements.confidence.textContent = "El modelo v3 aun no esta listo";
@@ -302,7 +308,7 @@ function updatePredictionText(bestDigit, confidence) {
     return;
   }
 
-  if (state.mode !== "train") {
+  if (state.mode !== "train" && state.mode !== "think") {
     elements.confidence.textContent = "Confianza: " + confidence.toFixed(1) + "%";
     return;
   }
@@ -603,7 +609,7 @@ function createThinkProblem() {
     if (operator === "+") {
       let left = randomDigit();
       let right = randomDigit();
-      while (left + right > 9) {
+      while (left + right > 9 || left === 0 || right === 0) {
         left = randomDigit();
         right = randomDigit();
       }
@@ -611,7 +617,7 @@ function createThinkProblem() {
     } else if (operator === "-") {
       let left = randomDigit();
       let right = randomDigit();
-      while (left < right) {
+      while (left < right || left === 0 || right === 0) {
         left = randomDigit();
         right = randomDigit();
       }
@@ -619,7 +625,7 @@ function createThinkProblem() {
     } else {
       let left = randomDigit();
       let right = randomDigit();
-      while (left * right > 9) {
+      while (left * right > 9 || left === 0 || right === 0) {
         left = randomDigit();
         right = randomDigit();
       }
@@ -649,7 +655,7 @@ function randomDigit() {
 }
 
 function showTrainingFeedback(isSuccess) {
-  if (state.mode !== "train") {
+  if (state.mode !== "train" && state.mode !== "think") {
     return;
   }
 
@@ -671,7 +677,8 @@ function playTrainingSound(isSuccess) {
   sound.play().catch(() => {});
 }
 
-function handleReadyButtonClick() {
+async function handleReadyButtonClick() {
+  await sleep(100);
   if (state.mode === "train") {
     advanceTrainingRound();
     return;

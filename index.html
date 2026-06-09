@@ -16,7 +16,7 @@
         <span id="model-status" class="status">Cargando modelo...</span>
       </div>
       <div class="mode-controls">
-        <button id="open-popup" type="button" class="mode-btn active">Prueba - Cambiar modo</button>
+        <button id="open-popup" type="button" class="mode-btn active pulse">Prueba - Cambiar modo</button>
       </div>
     </div>
     
@@ -24,12 +24,12 @@
       <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="mode-popup-title">
         <div class="modal-header">
           <p id="mode-popup-title" class="subtitle centered">Elige el modo de juego:</p>
-          <button id="close-popup" type="button" class="close" aria-label="Cerrar popup">&times;</button>
+          <button id="close-popup" type="button" class="close pulse" aria-label="Cerrar popup">&times;</button>
         </div>
         <div class="mode-controls">
-          <button id="test-btn" type="button" class="mode-btn active">Prueba</button>
-          <button id="train-btn" type="button" class="mode-btn">Entrena</button>
-          <button id="think-btn" type="button" class="mode-btn">Piensa</button>
+          <button id="test-btn" type="button" class="mode-btn active pulse">Prueba</button>
+          <button id="train-btn" type="button" class="mode-btn pulse">Entrena</button>
+          <button id="think-btn" type="button" class="mode-btn pulse">Piensa</button>
         </div>
       </div>
     </div>
@@ -47,8 +47,8 @@
           </div>
 
           <div class="controls">
-            <button id="clear-btn" type="button" class="ghost button-extended">Limpiar</button>
-            <button id="predict-btn" type="button" class="button-extended">Predecir</button>
+            <button id="clear-btn" type="button" class="ghost button-extended pulse">Limpiar</button>
+            <button id="predict-btn" type="button" class="button-extended pulse">Predecir</button>
           </div>
         </div>
       </article>
@@ -75,7 +75,7 @@
 
         <div id="train-feedback" class="train-feedback" hidden>
           <p id="train-icon" class="train-icon" aria-live="polite"></p>
-          <button id="ready-btn" type="button" class="ready-btn">Listo</button>
+          <button id="ready-btn" type="button" class="ready-btn pulse">Listo</button>
         </div>
       </article>
     </section>
