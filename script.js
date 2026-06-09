@@ -304,7 +304,7 @@ function updatePredictionText(bestDigit, confidence) {
       : "The correct answer was " + correctAnswer + ", but the model said it was a " + bestDigit + ". Confidence: " + confidence.toFixed(1) + "%";
     playTrainingSound(guessedCorrectly);
     showTrainingFeedback(guessedCorrectly);
-    elements.modeMessage.textContent = "Draw the result of a new operation.";
+    elements.modeMessage.textContent = "Press Ready to continue.";
     return;
   }
 
