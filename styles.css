@@ -15,6 +15,7 @@
   --success: #92d19b;
   --ready: rgba(0, 183, 255, 0.568);
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  --border-color: #00000000;
   font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -28,7 +29,27 @@ body {
   background:
     radial-gradient(circle at top, rgba(69, 196, 246, 0.233), transparent 35%),
     linear-gradient(180deg, #5e5e5e 0%, #3a3a3a 100%);
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: dark;
+    --panel-soft: #aaaaaaab;
+    --line: #c0b9b9;
+    --text: #000000;
+    --muted: #3f3f3f;
+    --button-muted: rgba(10, 59, 78, 0.14);
+    --text-muted: #cfefff;
+    --border-color: #5f5959;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top, rgba(69, 196, 246, 0.233), transparent 35%),
+      linear-gradient(180deg, #d6d6d6 0%, #999999 100%);
     color: var(--text);
+  }
 }
 
 .app {
@@ -44,7 +65,7 @@ body {
 
 .card {
   background: var(--panel-soft);
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(12px);
@@ -196,7 +217,7 @@ h1 {
   align-items: center;
   border: 2px solid var(--bg);
   position: relative;
-  width: 95px; /*min(350px, 70%);*/
+  width: 95px;
   border-radius: 999px;
   background-color: var(--panel-soft);
   padding: 20px;
@@ -241,7 +262,7 @@ h1 {
 
 button {
   font: inherit;
-  border: 0;
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 12px 16px;
   min-height: 48px;
@@ -289,13 +310,14 @@ button.close {
 .mode-btn {
   background: var(--button-muted);
   color: var(--text-muted);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border-color);
 }
 
 .mode-btn.active {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--text);
+  border: 1px solid var(--border-color);
 }
 
 .results .result-main {
