@@ -13,7 +13,7 @@
     <div class="title-header">
       <div class="hero-top">
         <h1 class="centered">Digit Recognition</h1>
-        <span id="model-status" class="status">Loading model...</span>
+        <span id="model-status" class="status"></span>
       </div>
       <div class="mode-controls">
         <button id="open-popup" type="button" class="mode-btn active pulse">Test - Change mode</button>
@@ -31,6 +31,12 @@
           <button id="train-btn" type="button" class="mode-btn pulse">Train</button>
           <button id="think-btn" type="button" class="mode-btn pulse">Think</button>
         </div>
+      </div>
+    </div>
+
+    <div id="load-popup" class="modal-overlay" hidden>
+      <div class="modal-load" role="dialog" aria-modal="true" aria-labelledby="loading-popup-title">
+        <div class="spinner"></div>  
       </div>
     </div>
 

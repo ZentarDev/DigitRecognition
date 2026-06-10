@@ -98,6 +98,26 @@ h1 {
   font-size: 1rem;
 }
 
+.status {
+  display: none;
+}
+
+.spinner {
+  display: flex;
+  align-items: right;
+  justify-content: right;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid #eee;
+  border-top-color: #7F77DD;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .layout {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -142,10 +162,12 @@ h1 {
 }
 
 .modal-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: fixed;
   inset: 0;
   z-index: 30;
-  display: grid;
   place-items: center;
   padding: 20px;
   background: rgba(0, 0, 0, 0.55);
@@ -162,6 +184,20 @@ h1 {
   position: relative;
   width: min(350px, 100%);
   border-radius: 24px;
+  background-color: var(--panel-soft);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.modal-load {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--bg);
+  position: relative;
+  width: 95px; /*min(350px, 70%);*/
+  border-radius: 999px;
   background-color: var(--panel-soft);
   padding: 20px;
   box-shadow: var(--shadow);

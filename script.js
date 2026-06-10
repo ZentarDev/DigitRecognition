@@ -59,6 +59,8 @@ const modal = document.getElementById("modal");
 const openPopupButton = document.getElementById("open-popup");
 const closePopupButton = document.getElementById("close-popup");
 
+const loading_popup = document.getElementById("load-popup")
+
 init();
 
 function sleep(ms) {
@@ -146,19 +148,22 @@ async function loadModel() {
     clearError();
     if (typeof tf === "undefined") throw new Error("TensorFlow.js has not been loaded.");
     if (window.location.protocol === "file:") throw new Error("Use a local server, not file://.");
-
-    elements.modelStatus.textContent = "Loading model v3...";
+    
+    loading_popup.hidden = false;
     const response = await fetch(MODEL_URL);
     if (!response.ok) throw new Error("Could not download model.json (" + response.status + ")");
+    await sleep(500);
 
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
-    elements.modelStatus.textContent = "Model v3 ready";
+
+    loading_popup.hidden = true;
     elements.modelStatus.classList.remove("error");
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
   } catch (error) {
     console.error("Failed to load model v3:", error);
+    elements.modelStatus.style.display = "inline"
     elements.modelStatus.textContent = "Could not load model v3";
     elements.modelStatus.classList.remove("ok");
     elements.modelStatus.classList.add("error");
