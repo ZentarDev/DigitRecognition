@@ -82,19 +82,19 @@ function bindEvents() {
   elements.testButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("test");
-    openPopupButton.textContent = "Test - Change mode"
+    openPopupButton.innerHTML = 'Test - Change mode <i class="fa-solid fa-sliders"></i>'
     hidePopup();
   });
   elements.trainButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("train");
-    openPopupButton.textContent = "Train - Change mode"
+    openPopupButton.innerHTML = 'Train - Change mode <i class="fa-solid fa-sliders"></i>'
     hidePopup();
   });
   elements.thinkButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("think");
-    openPopupButton.textContent = "Think - Change mode"
+    openPopupButton.innerHTML = 'Think - Change mode <i class="fa-solid fa-sliders"></i>'
     hidePopup();
   });
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
@@ -547,7 +547,6 @@ function syncResponsivePanels() {
     elements.resultsCard.hidden = compactMode;
   }
 
-  elements.readyButton.textContent = "Ready";
   elements.trainFeedback.hidden = !state.readyVisible;
   elements.drawCard.classList.toggle("is-prediction-view", showPrediction);
 }
@@ -665,7 +664,7 @@ function showTrainingFeedback(isSuccess) {
   }
 
   elements.trainFeedback.hidden = false;
-  elements.trainIcon.textContent = isSuccess ? "✓" : "✕";
+  elements.trainIcon.innerHTML = isSuccess ? "<i class='fa-solid fa-check'></i>" : "<i class='fa-solid fa-xmark'></i>";
   elements.trainIcon.classList.toggle("success", isSuccess);
   elements.trainIcon.classList.toggle("fail", !isSuccess);
 }
