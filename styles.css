@@ -45,7 +45,7 @@ body {
 
   body {
     background:
-      linear-gradient(180deg, #ffffff 0%, #e4e4e4 100%);
+      linear-gradient(180deg, #ebebeb 0%, #c7c7c7 100%);
     color: var(--text);
   }
 }
@@ -414,8 +414,6 @@ button.close {
   font-size: 1.1rem;
 }
 
-
-
 .bars {
   display: grid;
   gap: 10px;
@@ -464,7 +462,7 @@ button.close {
 .bar-track {
   height: 10px;
   border-radius: 999px;
-  background: var(--line);
+  background: var(--border-color);
   overflow: hidden;
 }
 
