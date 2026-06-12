@@ -612,7 +612,12 @@ function setMode(mode) {
 
   if (mode === "think") {
     startThinkRound();
+    elements.layout.className = "card card-think"
+  } else if (mode == "train") {
+    elements.layout.className = "card card-train"
+    clearCanvas();
   } else {
+    elements.layout.className = "card"
     clearCanvas();
   }
 }
