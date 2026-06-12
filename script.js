@@ -162,9 +162,9 @@ async function loadModel() {
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
   } catch (error) {
-    console.error("Failed to load model v3:", error);
+    console.error("Failed to load model:", error);
     elements.modelStatus.style.display = "inline"
-    elements.modelStatus.textContent = "Could not load model v3";
+    elements.modelStatus.textContent = "Could not load model";
     elements.modelStatus.classList.remove("ok");
     elements.modelStatus.classList.add("error");
   }
@@ -243,8 +243,8 @@ async function predictDigit() {
   await sleep(100);
   if (isCompactViewport()) showPredictionView();
   if (!state.model) {
-    elements.confidence.textContent = "Model v3 is not ready yet";
-    showError("Model v3 has not been loaded. Check the status message above.");
+    elements.confidence.textContent = "Model is not ready yet";
+    showError("Model has not been loaded. Check the status message above.");
     return;
   }
 
