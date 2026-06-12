@@ -277,26 +277,77 @@ async function predictDigit() {
 
 function createInputTensor() {
   return tf.tidy(() => {
+    const bigImgData = drawContext.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    const pixels = bigImgData.data;
+
+    let minX = CANVAS_SIZE, maxX = 0;
+    let minY = CANVAS_SIZE, maxY = 0;
+    let hasDrawing = false;
+
+    for (let y = 0; y < CANVAS_SIZE; y++) {
+      for (let x = 0; x < CANVAS_SIZE; x++) {
+        const index = (y * CANVAS_SIZE + x) * 4;
+        const r = pixels[index];
+        const g = pixels[index + 1];
+        const b = pixels[index + 2];
+
+        if (r > 30 || g > 30 || b > 30) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          hasDrawing = true;
+        }
+      }
+    }
+
     previewContext.clearRect(0, 0, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
-    previewContext.drawImage(elements.drawCanvas, 0, 0, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
+    fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
+
+    if (hasDrawing) {
+      const cropWidth = (maxX - minX) + 1;
+      const cropHeight = (maxY - minY) + 1;
+
+      const maxTargetSize = 20;
+      let scale = maxTargetSize / Math.max(cropWidth, cropHeight);
+      
+      const scaledWidth = cropWidth * scale;
+      const scaledHeight = cropHeight * scale;
+
+      const targetX = (MODEL_IMAGE_SIZE - scaledWidth) / 2;
+      const targetY = (MODEL_IMAGE_SIZE - scaledHeight) / 2;
+
+      previewContext.drawImage(
+        elements.drawCanvas,
+        minX, minY, cropWidth, cropHeight,
+        targetX, targetY, scaledWidth, scaledHeight
+      );
+    } else {
+      previewContext.drawImage(elements.drawCanvas, 0, 0, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
+    }
 
     const imageData = previewContext.getImageData(0, 0, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
-    const pixels = imageData.data;
+    const previewPixels = imageData.data;
     let total = 0;
 
-    for (let index = 0; index < pixels.length; index += 4) total += pixels[index];
+    for (let index = 0; index < previewPixels.length; index += 4) {
+      total += previewPixels[index];
+    }
 
     if (total / (MODEL_IMAGE_SIZE * MODEL_IMAGE_SIZE * 255) > 0.5) {
-      for (let index = 0; index < pixels.length; index += 4) {
-        const inverted = 255 - pixels[index];
-        pixels[index] = inverted;
-        pixels[index + 1] = inverted;
-        pixels[index + 2] = inverted;
+      for (let index = 0; index < previewPixels.length; index += 4) {
+        const inverted = 255 - previewPixels[index];
+        previewPixels[index] = inverted;
+        previewPixels[index + 1] = inverted;
+        previewPixels[index + 2] = inverted;
       }
       previewContext.putImageData(imageData, 0, 0);
     }
 
-    return tf.browser.fromPixels(elements.previewCanvas, 1).toFloat().div(255).expandDims(0);
+    return tf.browser.fromPixels(elements.previewCanvas, 1)
+      .toFloat()
+      .div(tf.scalar(255.0))
+      .expandDims(0);
   });
 }
 
