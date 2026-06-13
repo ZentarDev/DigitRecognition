@@ -225,18 +225,22 @@ function getCanvasPoint(event) {
   };
 }
 
-function clearCanvas() {
+function clearCanvas(reset=false) {
   clearError();
   if (isCompactViewport() && state.compactPredictionVisible) showCanvasView();
 
   fillCanvas(drawContext, CANVAS_SIZE, CANVAS_SIZE);
   fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
-  elements.prediction.textContent = "-";
-  elements.confidence.textContent = "";
-  state.readyVisible = false;
-  hideTrainingFeedback();
-  setModeMessage();
-  updateBars(new Array(CLASS_COUNT).fill(0));
+
+  if (reset === true) {
+    elements.prediction.textContent = "-";
+    elements.confidence.textContent = "";
+    hideTrainingFeedback();
+    state.readyVisible = false;
+    updateBars(new Array(CLASS_COUNT).fill(0));
+    setModeMessage();
+  }
+
   syncResponsivePanels();
 }
 
@@ -619,11 +623,11 @@ function setMode(mode) {
   } else if (mode === "train") {
     elements.predIcon.className = "hint fa-solid fa-dumbbell";
     elements.canvIcon.className = "hint fa-solid fa-dumbbell";
-    clearCanvas();
+    clearCanvas(true);
   } else {
     elements.predIcon.className = "hint fa-solid fa-pencil";
     elements.canvIcon.className = "hint fa-solid fa-pencil";
-    clearCanvas();
+    clearCanvas(true);
   }
 }
 
@@ -659,7 +663,7 @@ function setModeMessage() {
 
 function startThinkRound() {
   state.thinkProblem = createThinkProblem();
-  clearCanvas();
+  clearCanvas(true);
   setModeMessage();
 }
 
@@ -755,7 +759,7 @@ async function handleReadyButtonClick() {
   }
 
   if (state.mode === "test") {
-    clearCanvas();
+    clearCanvas(true);
   }
 }
 
@@ -765,5 +769,5 @@ function advanceTrainingRound() {
   state.targetDigit = nextTrainingDigit(state.targetDigit);
   hideTrainingFeedback();
   setModeMessage();
-  clearCanvas();
+  clearCanvas(true);
 }
