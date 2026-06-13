@@ -331,6 +331,15 @@ button.close {
   align-items: center;
 }
 
+article {
+  display: flex;
+  flex-direction: column;
+}
+
+#train-feedback {
+  margin-top: auto;
+}
+
 #results-card[hidden] {
   display: none !important;
 }
