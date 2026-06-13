@@ -47,7 +47,11 @@
       <article id="draw-card" class="card panel">
         <div id="draw-content" class="draw-content">
           <div class="panel-header">
-            <h2 class="centered">Canvas</h2>
+          <h2 style="display:flex; align-items:center; justify-content:space-between;">
+            <i style="visibility:hidden;" class="fa-solid fa-pencil"></i>
+            Canvas
+            <i id="canv-mode-indicator" class="hint fa-solid fa-pencil"></i>
+          </h2>
             <p id="mode-message" class="mode-message">Draw a digit and press predict.</p>
           </div>
 
@@ -64,7 +68,11 @@
 
       <article id="results-card" class="card panel results">
         <div class="panel-header">
-          <h2 class="centered">Prediction</h2>
+          <h2 style="display:flex; align-items:center; justify-content:space-between;">
+            <i style="visibility:hidden;" class="fa-solid fa-pencil"></i>
+            Prediction
+            <i id="pred-mode-indicator" class="hint fa-solid fa-pencil"></i>
+          </h2>
         </div>
 
         <div class="result-main">

@@ -24,6 +24,8 @@ const elements = {
   trainButton: $("train-btn"),
   readyButton: $("ready-btn"),
   thinkButton: $("think-btn"),
+  predIcon: $("pred-mode-indicator"),
+  canvIcon: $("canv-mode-indicator"),
   prediction: $("prediction"),
   confidence: $("confidence"),
   errorMessage: $("error-message"),
@@ -612,7 +614,15 @@ function setMode(mode) {
 
   if (mode === "think") {
     startThinkRound();
+    elements.predIcon.className = "hint fa-solid fa-brain";
+    elements.canvIcon.className = "hint fa-solid fa-brain";
+  } else if (mode === "train") {
+    elements.predIcon.className = "hint fa-solid fa-dumbbell";
+    elements.canvIcon.className = "hint fa-solid fa-dumbbell";
+    clearCanvas();
   } else {
+    elements.predIcon.className = "hint fa-solid fa-pencil";
+    elements.canvIcon.className = "hint fa-solid fa-pencil";
     clearCanvas();
   }
 }
