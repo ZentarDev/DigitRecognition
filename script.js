@@ -774,6 +774,7 @@ function showTrainingFeedback(isSuccess) {
   if (isSuccess === true) {
     streak += 1;
     animateStreak(elements.streakIndicatorCanvas);
+    animateStreak(elements.streakIndicator);
   } else {
     streak = 0;
   }
