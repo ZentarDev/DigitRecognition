@@ -26,6 +26,7 @@ const elements = {
   thinkButton: $("think-btn"),
   predIcon: $("pred-mode-indicator"),
   canvIcon: $("canv-mode-indicator"),
+  streakIndicator: $("streak-indicator"),
   prediction: $("prediction"),
   confidence: $("confidence"),
   errorMessage: $("error-message"),
@@ -56,6 +57,7 @@ const state = {
 };
 
 let probabilityBars = [];
+let streak = 0;
 
 const modal = document.getElementById("modal");
 const openPopupButton = document.getElementById("open-popup");
@@ -727,6 +729,14 @@ function showTrainingFeedback(isSuccess) {
   if (state.mode !== "train" && state.mode !== "think") {
     return;
   }
+
+  if (isSuccess === true) {
+    streak += 1;
+  } else {
+    streak = 0;
+  }
+
+  elements.streakIndicator.innerHTML = "<i class='fa-solid fa-fire'></i> " + streak;
 
   elements.trainFeedback.hidden = false;
   elements.trainIcon.innerHTML = isSuccess ? "<i class='fa-solid fa-check'></i>" : "<i class='fa-solid fa-xmark'></i>";

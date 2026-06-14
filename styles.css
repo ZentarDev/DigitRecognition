@@ -12,6 +12,7 @@
   --accent: #45c4f6;
   --accent-soft: rgba(246, 201, 69, 0.18);
   --danger: #ff8585;
+  --streak: #ff9100e3;
   --success: #92d19b;
   --ready: rgba(0, 183, 255, 0.568);
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
@@ -42,6 +43,7 @@ body {
     --button-muted: rgba(10, 59, 78, 0.14);
     --text-muted: #cfefff;
     --danger: #ff3333;
+    --streak: #884d00e3;
     --bars-color: #3838387c;
   }
 
@@ -117,6 +119,11 @@ h1 {
   background: var(--panel-soft);
   border: 1px solid var(--border-color);
   font-size: 1rem;
+  white-space: nowrap;
+}
+
+.hint i {
+  color: var(--streak);
 }
 
 .status {
