@@ -16,10 +16,10 @@
     <div class="title-header">
       <div class="hero-top">
         <h1 class="centered" style="flex: 1; text-align: center;">Digit Recognition</h1>
-        <h2 id="streak-indicator" class="hint"><i class="fa-solid fa-fire"></i> 0</h2>
         <span id="model-status" class="status"></span>
-      </div>
-      <div class="mode-controls">
+    </div>
+
+    <div class="mode-controls">
         <button id="open-popup" type="button" class="mode-btn active pulse">Test - Change mode <i class="fa-solid fa-sliders"></i></button>
       </div>
     </div>
@@ -48,10 +48,12 @@
       <article id="draw-card" class="card panel">
         <div id="draw-content" class="draw-content">
           <div class="panel-header">
-          <h2 style="display:flex; align-items:center; justify-content:space-between;">
-            <i style="visibility:hidden;" class="fa-solid fa-pencil"></i>
+          <h2 style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center;">
+            <span id="streak-indicator" class="hint" style="justify-self:start;">
+              <i class="fa-solid fa-fire"></i> 0
+            </span>
             Canvas
-            <i id="canv-mode-indicator" class="hint fa-solid fa-pencil"></i>
+            <i id="canv-mode-indicator" class="hint fa-solid fa-pencil" style="justify-self:end;"></i>
           </h2>
             <p id="mode-message" class="mode-message">Draw a digit and press predict.</p>
           </div>
@@ -68,13 +70,14 @@
       </article>
 
       <article id="results-card" class="card panel results">
-        <div class="panel-header">
-          <h2 style="display:flex; align-items:center; justify-content:space-between;">
-            <i style="visibility:hidden;" class="fa-solid fa-pencil"></i>
-            Prediction
-            <i id="pred-mode-indicator" class="hint fa-solid fa-pencil"></i>
-          </h2>
-        </div>
+        <h2 style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center;">
+          <span id="streak-indicator-canvas" class="hint" style="justify-self:start;">
+            <i class="fa-solid fa-fire"></i> 0
+          </span>
+          Prediction
+          <i id="pred-mode-indicator" class="hint fa-solid fa-pencil" style="justify-self:end;"></i>
+        </h2>
+        <br>
 
         <div class="result-main">
           <div class="preview-block">

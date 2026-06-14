@@ -27,6 +27,7 @@ const elements = {
   predIcon: $("pred-mode-indicator"),
   canvIcon: $("canv-mode-indicator"),
   streakIndicator: $("streak-indicator"),
+  streakIndicatorCanvas: $("streak-indicator-canvas"),
   prediction: $("prediction"),
   confidence: $("confidence"),
   errorMessage: $("error-message"),
@@ -725,18 +726,59 @@ function randomDigit() {
   return Math.floor(Math.random() * CLASS_COUNT);
 }
 
-function showTrainingFeedback(isSuccess) {
-  if (state.mode !== "train" && state.mode !== "think") {
-    return;
+function spawnParticles(el) {
+  const colors = ['#EF9F27','#E24B4A','#1D9E75','#7F77DD','#D85A30'];
+
+  const rect = el.getBoundingClientRect();
+  const scrollX = window.scrollX || window.pageXOffset;
+  const scrollY = window.scrollY || window.pageYOffset;
+
+  const centerX = rect.left + scrollX + rect.width / 2;
+  const centerY = rect.top + scrollY + rect.height / 2;
+
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / 10) * 360;
+    const dist = 40 + Math.random() * 30;
+    p.style.setProperty('--dx', Math.cos(angle * Math.PI / 180) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle * Math.PI / 180) * dist + 'px');
+    p.style.background = colors[i % colors.length];
+
+    p.style.position = 'fixed';
+    p.style.left = (rect.left + rect.width / 2 - 4) + 'px';
+    p.style.top  = (rect.top  + rect.height / 2 - 4) + 'px';
+    p.style.zIndex = 9999;
+
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 650);
   }
+}
+
+function updateStreak(value) {
+  const html = "<i class='fa-solid fa-fire'></i> " + value;
+  elements.streakIndicator.innerHTML = html;
+  elements.streakIndicatorCanvas.innerHTML = html;
+}
+
+function animateStreak(el) {
+  el.classList.remove('success-anim');
+  void el.offsetWidth;
+  el.classList.add('success-anim');
+  spawnParticles(el);
+}
+
+function showTrainingFeedback(isSuccess) {
+  if (state.mode !== "train" && state.mode !== "think") return;
 
   if (isSuccess === true) {
     streak += 1;
+    animateStreak(elements.streakIndicatorCanvas);
   } else {
     streak = 0;
   }
 
-  elements.streakIndicator.innerHTML = "<i class='fa-solid fa-fire'></i> " + streak;
+  updateStreak(streak);
 
   elements.trainFeedback.hidden = false;
   elements.trainIcon.innerHTML = isSuccess ? "<i class='fa-solid fa-check'></i>" : "<i class='fa-solid fa-xmark'></i>";
