@@ -1,7 +1,7 @@
 # Digit Recognition
 <img src="./assets/images/favicon.png" alt="Icon" width="100">
 
-Web app for recognizing handwritten digits with a model exported from TensorFlow.js.
+An interactive web application that recognizes handwritten digits using a TensorFlow.js model and collects a live community dataset synced automatically to Hugging Face.
 
 ## Model performance (v3)
 
@@ -21,6 +21,14 @@ The [MNIST](https://en.wikipedia.org/wiki/MNIST_database) dataset was used to tr
 - `script.js`: drawing, model loading, and prediction logic
 - `model/`: TensorFlow.js model and the .ipynb notebook used during training
 - `assets/audios/`: success and error sounds
+
+## Community Dataset
+
+This project features a live community dataset where every drawing submitted by users in the `Train` and `Think` modes is stored in a Supabase database. 
+
+An automated pipeline runs every day via GitHub Actions to fetch new submissions, structure them, and sync them into a public repository. You can explore, visualize, and download the full community dataset here:
+
+**[Hugging Face: handwritten-digit-dataset](https://huggingface.co/datasets/zentardev/handwritten-digit-dataset)**
 
 ## Game modes
 

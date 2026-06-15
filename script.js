@@ -11,6 +11,10 @@ const MODEL_IMAGE_SIZE = 28;
 const CLASS_COUNT = 10;
 const COMPACT_QUERY = window.matchMedia("(max-width: 760px)");
 
+const SUPABASE_URL = 'https://tkyimsswodyghjzekutl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRreWltc3N3b2R5Z2hqemVrdXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDc5MTMsImV4cCI6MjA5NzA4MzkxM30.fWEQ8e3rI2jfxKB9R5-GC0RUf6mf1QGbS-KVBbrAgA0';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const elements = {
   layout: $("layout"),
   drawCard: $("draw-card"),
@@ -122,6 +126,26 @@ function bindEvents() {
   }
 }
 
+async function saveDigitToDatabase(canvas, aiPrediction, isCorrect) {
+    try {
+        const base64Image = canvas.toDataURL('image/png');
+
+        const { error } = await supabaseClient
+            .from('digits')
+            .insert({ 
+                image_base64: base64Image, 
+                prediction: aiPrediction, 
+                correct: isCorrect 
+            });
+
+        if (error) {
+            console.error('Error saving data to Supabase:', error.message);
+        }
+
+    } catch (err) {
+        console.error('Unexpected error while saving digit:', err);
+    }
+}
 function showPopup() {
   modal.hidden = false;
 }
@@ -385,6 +409,8 @@ function updatePredictionText(bestDigit, confidence) {
   playTrainingSound(guessedCorrectly);
   showTrainingFeedback(guessedCorrectly);
   elements.modeMessage.textContent = "Press Ready to continue.";
+
+  saveDigitToDatabase(elements.drawCanvas, bestDigit, true);
 }
 
 function updateBars(probabilities) {
