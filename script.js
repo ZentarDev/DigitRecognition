@@ -410,7 +410,7 @@ function updatePredictionText(bestDigit, confidence) {
   showTrainingFeedback(guessedCorrectly);
   elements.modeMessage.textContent = "Press Ready to continue.";
 
-  saveDigitToDatabase(bestDigit, true);
+  saveDigitToDatabase(bestDigit, guessedCorrectly);
 }
 
 function updateBars(probabilities) {
