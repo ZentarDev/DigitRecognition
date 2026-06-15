@@ -35,40 +35,51 @@ jobs:
 
         const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-        async function exportData() {
-          const { data, error } = await supabase
-            .from("digits")
-            .select("image_base64, prediction, correct");
-
-          if (error) {
-            console.error("Error fetching data:", error.message);
-            process.exit(1);
+        async function fetchAll() {
+          let all = [];
+          let from = 0;
+          const pageSize = 1000;
+          while (true) {
+            const { data, error } = await supabase
+              .from("digits")
+              .select("image_base64, prediction, correct")
+              .range(from, from + pageSize - 1);
+            if (error) { console.error(error.message); process.exit(1); }
+            if (!data.length) break;
+            all = all.concat(data);
+            if (data.length < pageSize) break;
+            from += pageSize;
           }
+          return all;
+        }
 
-          let trainContent = "image_base64,prediction,correct\n";
-          let testContent = "image_base64,prediction,correct\n";
-          
-          let trainCount = 0;
-          let testCount = 0;
+        async function exportData() {
+          const data = await fetchAll();
+
+          const trainRows = [];
+          const testRows = [];
 
           data.forEach(row => {
             const csvRow = `"${row.image_base64}",${row.prediction},${row.correct}\n`;
-            
             if (row.correct === true || row.correct === "true") {
-              trainContent += csvRow;
-              trainCount++;
-            } else {
-              testContent += csvRow;
-              testCount++;
+              trainRows.push(csvRow);
+            } else if (row.correct === false || row.correct === "false") {
+              testRows.push(csvRow);
             }
           });
 
-          fs.writeFileSync("train.csv", trainContent);
-          fs.writeFileSync("test.csv", testContent);
-          
-          console.log(`¡Separación completada con éxito!`);
-          console.log(`- train.csv creado con ${trainCount} filas (Aciertos).`);
-          console.log(`- test.csv creado con ${testCount} filas (Fallos).`);
+          const totalRows = trainRows.length + testRows.length;
+          const targetTest = Math.round(totalRows * 0.2);
+          const shortage = Math.max(0, targetTest - testRows.length);
+          const movedToTest = trainRows.splice(-shortage, shortage);
+
+          const header = "image_base64,prediction,correct\n";
+          fs.writeFileSync("train.csv", header + trainRows.join(""));
+          fs.writeFileSync("test.csv", header + [...testRows, ...movedToTest].join(""));
+
+          console.log(`Total: ${totalRows}`);
+          console.log(`train.csv: ${trainRows.length} filas`);
+          console.log(`test.csv: ${testRows.length + movedToTest.length} filas (${testRows.length} fallos + ${movedToTest.length} aciertos movidos)`);
         }
 
         exportData();
@@ -77,18 +88,18 @@ jobs:
     - name: Push to Hugging Face
       env:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        HF_REPO: "zentardev/handwritten-digit-dataset" 
+        HF_REPO: "zentardev/handwritten-digit-dataset"
       run: |
         git config --global user.name "Github Actions Robot"
         git config --global user.email "actions@github.com"
-        
+
         git clone https://oauth2:$HF_TOKEN@huggingface.co/datasets/$HF_REPO hf_dataset
-        
+
         mv train.csv test.csv hf_dataset/
         cd hf_dataset
-        
+
         git add train.csv test.csv
-        
+
         git commit -m "Automated update: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || { echo "There are no new changes to upload."; exit 0; }
-        
+
         git push origin HEAD:main
