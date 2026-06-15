@@ -42,7 +42,7 @@ jobs:
           while (true) {
             const { data, error } = await supabase
               .from("digits")
-              .select("image_base64, prediction, correct")
+              .select("image_base64, prediction, correct, true_label")
               .range(from, from + pageSize - 1);
             if (error) { console.error(error.message); process.exit(1); }
             if (!data.length) break;
@@ -56,11 +56,15 @@ jobs:
         async function exportData() {
           const data = await fetchAll();
 
+          const distribution = {};
+          data.forEach(r => distribution[r.true_label] = (distribution[r.true_label] || 0) + 1);
+          console.log("Distribution:", JSON.stringify(distribution));
+
           const trainRows = [];
           const testRows = [];
 
           data.forEach(row => {
-            const csvRow = `"${row.image_base64}",${row.prediction},${row.correct}\n`;
+            const csvRow = `"${row.image_base64}",${row.prediction},${row.correct},${row.true_label}\n`;
             if (row.correct === true || row.correct === "true") {
               trainRows.push(csvRow);
             } else if (row.correct === false || row.correct === "false") {
@@ -68,18 +72,20 @@ jobs:
             }
           });
 
+          trainRows.sort(() => Math.random() - 0.5);
+
           const totalRows = trainRows.length + testRows.length;
           const targetTest = Math.round(totalRows * 0.2);
           const shortage = Math.max(0, targetTest - testRows.length);
           const movedToTest = trainRows.splice(-shortage, shortage);
 
-          const header = "image_base64,prediction,correct\n";
+          const header = "image_base64,prediction,correct,true_label\n";
           fs.writeFileSync("train.csv", header + trainRows.join(""));
           fs.writeFileSync("test.csv", header + [...testRows, ...movedToTest].join(""));
 
           console.log(`Total: ${totalRows}`);
-          console.log(`train.csv: ${trainRows.length} filas`);
-          console.log(`test.csv: ${testRows.length + movedToTest.length} filas (${testRows.length} fallos + ${movedToTest.length} aciertos movidos)`);
+          console.log(`train.csv: ${trainRows.length} rows`);
+          console.log(`test.csv: ${testRows.length + movedToTest.length} rows (${testRows.length} incorrect + ${movedToTest.length} correct moved)`);
         }
 
         exportData();
@@ -100,6 +106,6 @@ jobs:
 
         git add train.csv test.csv
 
-        git commit -m "Automated update: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || { echo "There are no new changes to upload."; exit 0; }
+        git commit -m "Automated update: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || { echo "No new changes to upload."; exit 0; }
 
         git push origin HEAD:main

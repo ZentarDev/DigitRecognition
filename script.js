@@ -126,7 +126,7 @@ function bindEvents() {
   }
 }
 
-async function saveDigitToDatabase(aiPrediction, isCorrect) {
+async function saveDigitToDatabase(aiPrediction, isCorrect, trueLabel) {
     try {
         const base64Image = elements.previewCanvas.toDataURL('image/png');
 
@@ -135,7 +135,8 @@ async function saveDigitToDatabase(aiPrediction, isCorrect) {
             .insert({ 
                 image_base64: base64Image, 
                 prediction: aiPrediction, 
-                correct: isCorrect 
+                correct: isCorrect,
+                true_label: trueLabel
             });
 
         if (error) {
@@ -392,32 +393,35 @@ function createInputTensor() {
 }
 
 function updatePredictionText(bestDigit, highestProbability) {
-  const percentage = (highestProbability * 100).toFixed(1);
-  elements.predictionText.innerHTML = `I think it's a <strong>${bestDigit}</strong> (${percentage}%)`;
+  const percentage = highestProbability.toFixed(1);
+  elements.prediction.innerHTML = bestDigit;
 
-  if (state.mode === "test") return;
+  if (state.mode === "test") {
+    elements.confidence.textContent = "Confidence: " + percentage + "%";
+    return;
+  }
 
   const guessedCorrectly = bestDigit === state.targetDigit;
 
+  if (guessedCorrectly) {
+    elements.confidence.textContent = "The model guessed correctly with a " + percentage + "% confidence";
+  } else {
+    elements.confidence.textContent = "The correct answer was " + state.targetDigit + ", but the model said " + bestDigit + ". Confidence: " + percentage + "%";
+  }
+
   if (state.mode === "think") {
-    if (guessedCorrectly) {
-      elements.expressionSpan.classList.add("correct-anim");
-    }
+    if (guessedCorrectly) elements.streakIndicator.classList.add("correct-anim");
     playTrainingSound(guessedCorrectly);
     showTrainingFeedback(guessedCorrectly);
-    
-    saveDigitToDatabase(bestDigit, guessedCorrectly); 
+    saveDigitToDatabase(bestDigit, guessedCorrectly, state.targetDigit);
     return;
   }
 
   if (state.mode === "train") {
-    if (guessedCorrectly) {
-      elements.targetDigitSpan.classList.add("correct-anim");
-    }
+    if (guessedCorrectly) elements.streakIndicator.classList.add("correct-anim");
     playTrainingSound(guessedCorrectly);
     showTrainingFeedback(guessedCorrectly);
-    
-    saveDigitToDatabase(bestDigit, guessedCorrectly); 
+    saveDigitToDatabase(bestDigit, guessedCorrectly, state.targetDigit);
   }
 }
 
