@@ -156,8 +156,15 @@ function hidePopup() {
 
 function setupCanvases() {
   elements.predictButton.disabled = true;
+
+  elements.drawCanvas.width = CANVAS_SIZE;
+  elements.drawCanvas.height = CANVAS_SIZE;
+  elements.previewCanvas.width = MODEL_IMAGE_SIZE;
+  elements.previewCanvas.height = MODEL_IMAGE_SIZE;
+
   fillCanvas(drawContext, CANVAS_SIZE, CANVAS_SIZE);
   fillCanvas(previewContext, MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
+  
   Object.assign(drawContext, {
     lineCap: "round",
     lineJoin: "round",
@@ -384,33 +391,34 @@ function createInputTensor() {
   });
 }
 
-function updatePredictionText(bestDigit, confidence) {
-  if (state.mode === "think") {
-    const correctAnswer = state.thinkProblem?.answer;
-    const guessedCorrectly = bestDigit === correctAnswer;
-    elements.confidence.textContent = guessedCorrectly
-      ? "The model guessed correctly with a " + confidence.toFixed(1) + "% confidence"
-      : "The correct answer was " + correctAnswer + ", but the model said it was a " + bestDigit + ". Confidence: " + confidence.toFixed(1) + "%";
-    playTrainingSound(guessedCorrectly);
-    showTrainingFeedback(guessedCorrectly);
-    elements.modeMessage.textContent = "Press Ready to continue.";
-    return;
-  }
+function updatePredictionText(bestDigit, highestProbability) {
+  const percentage = (highestProbability * 100).toFixed(1);
+  elements.predictionText.innerHTML = `I think it's a <strong>${bestDigit}</strong> (${percentage}%)`;
 
-  if (state.mode !== "train" && state.mode !== "think") {
-    elements.confidence.textContent = "Confidence: " + confidence.toFixed(1) + "%";
-    return;
-  }
+  if (state.mode === "test") return;
 
   const guessedCorrectly = bestDigit === state.targetDigit;
-  elements.confidence.textContent = guessedCorrectly
-    ? "The model guessed correctly with a " + confidence.toFixed(1) + "% confidence"
-    :  "The target was " + state.targetDigit + ", but the model said it was a " + bestDigit + ". Confidence: " + confidence.toFixed(1) + "%";
-  playTrainingSound(guessedCorrectly);
-  showTrainingFeedback(guessedCorrectly);
-  elements.modeMessage.textContent = "Press Ready to continue.";
 
-  saveDigitToDatabase(bestDigit, guessedCorrectly);
+  if (state.mode === "think") {
+    if (guessedCorrectly) {
+      elements.expressionSpan.classList.add("correct-anim");
+    }
+    playTrainingSound(guessedCorrectly);
+    showTrainingFeedback(guessedCorrectly);
+    
+    saveDigitToDatabase(bestDigit, guessedCorrectly); 
+    return;
+  }
+
+  if (state.mode === "train") {
+    if (guessedCorrectly) {
+      elements.targetDigitSpan.classList.add("correct-anim");
+    }
+    playTrainingSound(guessedCorrectly);
+    showTrainingFeedback(guessedCorrectly);
+    
+    saveDigitToDatabase(bestDigit, guessedCorrectly); 
+  }
 }
 
 function updateBars(probabilities) {
