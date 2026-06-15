@@ -126,9 +126,9 @@ function bindEvents() {
   }
 }
 
-async function saveDigitToDatabase(canvas, aiPrediction, isCorrect) {
+async function saveDigitToDatabase(aiPrediction, isCorrect) {
     try {
-        const base64Image = canvas.toDataURL('image/png');
+        const base64Image = elements.previewCanvas.toDataURL('image/png');
 
         const { error } = await supabaseClient
             .from('digits')
@@ -410,7 +410,7 @@ function updatePredictionText(bestDigit, confidence) {
   showTrainingFeedback(guessedCorrectly);
   elements.modeMessage.textContent = "Press Ready to continue.";
 
-  saveDigitToDatabase(elements.drawCanvas, bestDigit, true);
+  saveDigitToDatabase(bestDigit, true);
 }
 
 function updateBars(probabilities) {

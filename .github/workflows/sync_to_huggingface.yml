@@ -45,16 +45,30 @@ jobs:
             process.exit(1);
           }
 
-          // Crear cabecera del archivo CSV
-          let csvContent = "image_base64,prediction,correct\n";
+          let trainContent = "image_base64,prediction,correct\n";
+          let testContent = "image_base64,prediction,correct\n";
           
-          // Formatear cada fila envolviendo el base64 en comillas por si tiene comas internas
+          let trainCount = 0;
+          let testCount = 0;
+
           data.forEach(row => {
-            csvContent += `"${row.image_base64}",${row.prediction},${row.correct}\n`;
+            const csvRow = `"${row.image_base64}",${row.prediction},${row.correct}\n`;
+            
+            if (row.correct === true || row.correct === "true") {
+              trainContent += csvRow;
+              trainCount++;
+            } else {
+              testContent += csvRow;
+              testCount++;
+            }
           });
 
-          fs.writeFileSync("dataset.csv", csvContent);
-          console.log("CSV creado con éxito con " + data.length + " filas.");
+          fs.writeFileSync("train.csv", trainContent);
+          fs.writeFileSync("test.csv", testContent);
+          
+          console.log(`¡Separación completada con éxito!`);
+          console.log(`- train.csv creado con ${trainCount} filas (Aciertos).`);
+          console.log(`- test.csv creado con ${testCount} filas (Fallos).`);
         }
 
         exportData();
