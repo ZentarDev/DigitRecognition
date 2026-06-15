@@ -84,9 +84,11 @@ jobs:
         
         git clone https://oauth2:$HF_TOKEN@huggingface.co/datasets/$HF_REPO hf_dataset
         
-        mv dataset.csv hf_dataset/
-        
+        mv train.csv test.csv hf_dataset/
         cd hf_dataset
-        git add dataset.csv
-        git commit -m "Automated update: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || exit 0
-        git push origin main
+        
+        git add train.csv test.csv
+        
+        git commit -m "Automated update: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || { echo "There are no new changes to upload."; exit 0; }
+        
+        git push origin HEAD:main
