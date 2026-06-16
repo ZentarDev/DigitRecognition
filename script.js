@@ -59,6 +59,7 @@ const state = {
   readyVisible: false,
   thinkProblem: null,
   lastThinkProblemKey: null,
+  recentDigits: [],
 };
 
 let probabilityBars = [];
@@ -73,7 +74,16 @@ const loading_popup = document.getElementById("load-popup")
 init();
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function setOpenPopupLabel(modeName) {
+  openPopupButton.innerHTML = `${modeName} - Change mode <i class="fa-solid fa-sliders"></i>`;
+}
+
+function setModeIcon(iconClass) {
+  elements.predIcon.className = `hint fa-solid ${iconClass}`;
+  elements.canvIcon.className = `hint fa-solid ${iconClass}`;
 }
 
 function init() {
@@ -91,19 +101,19 @@ function bindEvents() {
   elements.testButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("test");
-    openPopupButton.innerHTML = 'Test - Change mode <i class="fa-solid fa-sliders"></i>'
+    setOpenPopupLabel("Test");
     hidePopup();
   });
   elements.trainButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("train");
-    openPopupButton.innerHTML = 'Train - Change mode <i class="fa-solid fa-sliders"></i>'
+    setOpenPopupLabel("Train");
     hidePopup();
   });
   elements.thinkButton.addEventListener("click", async () => {
     await sleep(100);
     setMode("think");
-    openPopupButton.innerHTML = 'Think - Change mode <i class="fa-solid fa-sliders"></i>'
+    setOpenPopupLabel("Think");
     hidePopup();
   });
   elements.readyButton.addEventListener("click", handleReadyButtonClick);
@@ -141,6 +151,8 @@ async function saveDigitToDatabase(aiPrediction, isCorrect, trueLabel) {
 
         if (error) {
             console.error('Error saving data to Supabase:', error.message);
+        } else {
+            digitCountsCache = null;
         }
 
     } catch (err) {
@@ -282,6 +294,7 @@ function clearCanvas(reset=false) {
 
 async function predictDigit() {
   await sleep(100);
+
   if (isCompactViewport()) showPredictionView();
   if (!state.model) {
     elements.confidence.textContent = "Model is not ready yet";
@@ -649,26 +662,30 @@ function syncResponsivePanels() {
   elements.drawCard.classList.toggle("is-prediction-view", showPrediction);
 }
 
-function setMode(mode) {
+async function setMode(mode) {
   state.mode = mode;
   state.compactPredictionVisible = false;
   state.readyVisible = false;
-  state.targetDigit = mode === "train" ? nextTrainingDigit(state.targetDigit) : null;
+  state.recentDigits = [];
+  state.targetDigit = null;
   state.thinkProblem = null;
+
   updateModeUI();
+  hideTrainingFeedback();
+  clearCanvas(true);
+  loading_popup.hidden = false;
 
   if (mode === "think") {
+    setModeIcon("fa-brain");
+    state.thinkProblem = await createThinkProblem();
     startThinkRound();
-    elements.predIcon.className = "hint fa-solid fa-brain";
-    elements.canvIcon.className = "hint fa-solid fa-brain";
   } else if (mode === "train") {
-    elements.predIcon.className = "hint fa-solid fa-dumbbell";
-    elements.canvIcon.className = "hint fa-solid fa-dumbbell";
-    clearCanvas(true);
+    setModeIcon("fa-dumbbell");
+    state.targetDigit = await nextTrainingDigit();
+    setModeMessage();
   } else {
-    elements.predIcon.className = "hint fa-solid fa-pencil";
-    elements.canvIcon.className = "hint fa-solid fa-pencil";
-    clearCanvas(true);
+    setModeIcon("fa-pencil");
+    setModeMessage();
   }
 }
 
@@ -686,66 +703,100 @@ function setModeMessage() {
     elements.modeMessage.textContent = state.targetDigit === null
       ? "Prepare the next digit."
       : "Draw the digit " + state.targetDigit + ".";
+    loading_popup.hidden = true;
+
     return;
   }
 
   if (state.mode === "think") {
     if (!state.thinkProblem) {
       elements.modeMessage.textContent = "Draw the result of a simple operation.";
+      loading_popup.hidden = true;
       return;
     }
 
     elements.modeMessage.textContent = "Draw the result of " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
+    loading_popup.hidden = true;
     return;
   }
 
   elements.modeMessage.textContent = "Draw a digit and press predict.";
+  loading_popup.hidden = true;
 }
 
 function startThinkRound() {
-  state.thinkProblem = createThinkProblem();
-  clearCanvas(true);
+  clearCanvas(true)
   setModeMessage();
+  hideTrainingFeedback();
 }
 
-function createThinkProblem() {
+async function createThinkProblem() {
   const operators = ["+", "-", "x"];
   let problem;
   let attempts = 0;
+
+  const targetAnswer = await smartPickDigit();
+  state.targetDigit = targetAnswer;
 
   do {
     const operator = operators[Math.floor(Math.random() * operators.length)];
 
     if (operator === "+") {
-      let left = randomDigit();
-      let right = randomDigit();
-      while (left + right > 9 || left === 0 || right === 0) {
-        left = randomDigit();
-        right = randomDigit();
+      if (targetAnswer < 2) {
+        const left = targetAnswer + 1 + Math.floor(Math.random() * (9 - targetAnswer));
+        const right = left - targetAnswer;
+        if (right >= 1) {
+          problem = { left, right, operator: "-", answer: targetAnswer };
+        } else {
+          problem = { left: targetAnswer, right: 1, operator: "x", answer: targetAnswer };
+        }
+      } else {
+        const left = 1 + Math.floor(Math.random() * (targetAnswer - 1));
+        const right = targetAnswer - left;
+        problem = { left, right, operator, answer: targetAnswer };
       }
-      problem = { left, right, operator, answer: left + right };
     } else if (operator === "-") {
-      let left = randomDigit();
-      let right = randomDigit();
-      while (left < right || left === 0 || right === 0) {
-        left = randomDigit();
-        right = randomDigit();
+      const right = 1 + Math.floor(Math.random() * Math.min(9 - targetAnswer - 1, 8));
+      const left = targetAnswer + right;
+      if (left <= 9 && right >= 1) {
+        problem = { left, right, operator, answer: targetAnswer };
+      } else {
+        if (targetAnswer >= 2) {
+          const l = 1 + Math.floor(Math.random() * (targetAnswer - 1));
+          problem = { left: l, right: targetAnswer - l, operator: "+", answer: targetAnswer };
+        } else {
+          problem = { left: targetAnswer, right: 1, operator: "x", answer: targetAnswer };
+        }
       }
-      problem = { left, right, operator, answer: left - right };
     } else {
-      let left = randomDigit();
-      let right = randomDigit();
-      while (left * right > 9 || left === 0 || right === 0) {
-        left = randomDigit();
-        right = randomDigit();
+      const factors = [];
+      for (let f = 1; f <= targetAnswer; f++) {
+        if (targetAnswer % f === 0 && targetAnswer / f <= 9) factors.push(f);
       }
-      problem = { left, right, operator, answer: left * right };
+      if (factors.length > 0 && targetAnswer >= 1) {
+        const left = factors[Math.floor(Math.random() * factors.length)];
+        const right = targetAnswer / left;
+        if (left >= 1 && right >= 1) {
+          problem = { left, right, operator, answer: targetAnswer };
+        } else {
+          const l = targetAnswer >= 2 ? 1 + Math.floor(Math.random() * (targetAnswer - 1)) : 1;
+          problem = { left: l, right: targetAnswer - l, operator: "+", answer: targetAnswer };
+        }
+      } else {
+        if (targetAnswer === 0) {
+          const left = 1 + Math.floor(Math.random() * 9);
+          problem = { left, right: 0, operator: "x", answer: 0 };
+        } else {
+          const l = 1 + Math.floor(Math.random() * (targetAnswer - 1));
+          problem = { left: l, right: targetAnswer - l, operator: "+", answer: targetAnswer };
+        }
+      }
     }
 
     attempts += 1;
-  } while (problemKey(problem) === state.lastThinkProblemKey && attempts < 20);
+  } while (problem && problemKey(problem) === state.lastThinkProblemKey && attempts < 20);
 
-  state.lastThinkProblemKey = problemKey(problem);
+  state.lastThinkProblemKey = problem ? problemKey(problem) : null;
   return problem;
 }
 
@@ -753,11 +804,64 @@ function problemKey(problem) {
   return problem.left + "|" + problem.operator + "|" + problem.right;
 }
 
-function nextTrainingDigit(previousDigit) {
-  if (previousDigit === null || previousDigit === undefined) return randomDigit();
-  let nextDigit = randomDigit();
-  while (nextDigit === previousDigit) nextDigit = randomDigit();
-  return nextDigit;
+let digitCountsCache = null;
+
+async function fetchDigitCounts() {
+  if (digitCountsCache) return digitCountsCache;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('digits')
+      .select('true_label')
+      .order('true_label');
+
+    if (error) {
+      console.error('Error fetching digit counts:', error.message);
+      return null;
+    }
+
+    const counts = new Array(CLASS_COUNT).fill(0);
+    data.forEach(({ true_label }) => {
+      if (true_label !== null && true_label >= 0 && true_label < CLASS_COUNT) {
+        counts[true_label]++;
+      }
+    });
+
+    digitCountsCache = counts;
+    return counts;
+  } catch (err) {
+    console.error('Error fetching digit counts:', err);
+    return null;
+  }
+}
+
+async function smartPickDigit() {
+  const counts = await fetchDigitCounts();
+
+  const blocked = new Set(state.recentDigits);
+
+  let candidates = Array.from({ length: CLASS_COUNT }, (_, i) => i)
+    .filter(d => !blocked.has(d));
+
+  if (candidates.length === 0) candidates = Array.from({ length: CLASS_COUNT }, (_, i) => i);
+
+  let chosen;
+  if (counts) {
+    const minCount = Math.min(...candidates.map(d => counts[d]));
+    const minCandidates = candidates.filter(d => counts[d] === minCount);
+    chosen = minCandidates[Math.floor(Math.random() * minCandidates.length)];
+  } else {
+    chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  }
+
+  state.recentDigits.push(chosen);
+  if (state.recentDigits.length > 2) state.recentDigits.shift();
+
+  return chosen;
+}
+
+async function nextTrainingDigit() {
+  return await smartPickDigit();
 }
 
 function randomDigit() {
@@ -812,8 +916,6 @@ function showTrainingFeedback(isSuccess) {
   if (isSuccess === true) {
     streak += 1;
     animateStreak(elements.streakIndicatorCanvas);
-  } else {
-    streak = 0;
   }
 
   updateStreak(streak);
@@ -838,12 +940,15 @@ function playTrainingSound(isSuccess) {
 
 async function handleReadyButtonClick() {
   await sleep(100);
+  
   if (state.mode === "train") {
+    state.targetDigit = await nextTrainingDigit();
     advanceTrainingRound();
     return;
   }
 
   if (state.mode === "think") {
+    state.thinkProblem = await createThinkProblem();
     startThinkRound();
     return;
   }
@@ -856,8 +961,7 @@ async function handleReadyButtonClick() {
 function advanceTrainingRound() {
   if (state.mode !== "train") return;
   showCanvasView();
-  state.targetDigit = nextTrainingDigit(state.targetDigit);
   hideTrainingFeedback();
-  setModeMessage();
   clearCanvas(true);
+  setModeMessage();
 }
