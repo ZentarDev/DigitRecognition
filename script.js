@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const url = (path) => new URL(path, window.location.href).href;
 
-const MODEL_URL = url("./models/model_v3/model.json");
+const MODEL_URL = url("./models/model.json");
 const AUDIO_URLS = {
   correct: url("./assets/audios/correct.mp3"),
   incorrect: url("./assets/audios/incorrect.mp3"),

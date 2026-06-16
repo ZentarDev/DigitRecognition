@@ -3,7 +3,7 @@
 
 An interactive web application that recognizes handwritten digits using a TensorFlow.js model and collects a live community dataset synced automatically to Hugging Face.
 
-## Model performance (v3)
+## Model performance
 
 <p align="center">
     <img src="./assets/images/loss_accuracy_figure.png" alt="Loss and Accuracy figure" width="1000">
@@ -36,6 +36,10 @@ An automated pipeline runs every day via GitHub Actions to fetch new submissions
 - `Train`: draw the digit that is shown.
 - `Think`: draw the result of the indicated operation.
 
+## Try it on the web
+
+To try it without installing anything, visit this [link](https://zentardev.github.io/DigitRecognition).
+
 ## Run locally
 
 You cannot open `index.html` with `file://`. Use a local server:
@@ -49,11 +53,3 @@ Then open:
 ```text
 http://localhost:8000
 ```
-
-## Try it on the web
-
-To try it without installing anything, visit this [link](https://zentardev.github.io/DigitRecognition).
-
-## GitHub Pages
-
-The project includes a workflow in `.github/workflows/deploy-pages.yml` to deploy automatically with GitHub Actions.
