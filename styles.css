@@ -28,17 +28,21 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, #5e5e5e 0%, #3a3a3a 100%);
+  background-color: #040712;
+  background-image: 
+    radial-gradient(circle at 20% -10%, rgba(69, 196, 246, 0.55) 0%, transparent 70%),
+    radial-gradient(circle at 80% 20%, rgba(146, 209, 155, 0.45) 0%, transparent 70%),
+    radial-gradient(circle at 40% 70%, rgba(157, 78, 221, 0.4) 0%, transparent 80%);
+  background-attachment: fixed;
   color: var(--text);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
     --panel-soft: #aaaaaaab;
     --line: #c0b9b9;
-    --text: #000000;
+    --text: #111111;
     --muted: #3f3f3f;
     --button-muted: rgba(10, 59, 78, 0.14);
     --text-muted: #cfefff;
@@ -48,8 +52,14 @@ body {
   }
 
   body {
-    background:
-      linear-gradient(180deg, #ebebeb 0%, #c7c7c7 100%);
+    margin: 0;
+    min-height: 100vh;
+    background-color: #7b91df;
+    background-image: 
+      radial-gradient(circle at 20% -10%, rgba(69, 196, 246, 0.55) 0%, transparent 70%),
+      radial-gradient(circle at 80% 20%, rgba(146, 209, 155, 0.45) 0%, transparent 70%),
+      radial-gradient(circle at 40% 70%, rgba(157, 78, 221, 0.4) 0%, transparent 80%);
+    background-attachment: fixed;
     color: var(--text);
   }
 }

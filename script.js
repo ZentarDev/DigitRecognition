@@ -676,14 +676,20 @@ async function setMode(mode) {
   loading_popup.hidden = false;
 
   if (mode === "think") {
+    elements.streakIndicator.style.visibility = "visible"
+    elements.streakIndicatorCanvas.style.visibility = "visible"
     setModeIcon("fa-brain");
     state.thinkProblem = await createThinkProblem();
     startThinkRound();
   } else if (mode === "train") {
+    elements.streakIndicator.style.visibility = "visible"
+    elements.streakIndicatorCanvas.style.visibility = "visible"
     setModeIcon("fa-dumbbell");
     state.targetDigit = await nextTrainingDigit();
     setModeMessage();
   } else {
+    elements.streakIndicator.style.visibility = "hidden"
+    elements.streakIndicatorCanvas.style.visibility= "hidden"
     setModeIcon("fa-pencil");
     setModeMessage();
   }
