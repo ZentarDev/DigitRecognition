@@ -847,8 +847,7 @@ async function smartPickDigit() {
 
   let chosen;
   if (counts) {
-    const minCount = Math.min(...candidates.map(d => counts[d]));
-    const minCandidates = candidates.filter(d => counts[d] === minCount);
+    const minCandidates = candidates.sort((a, b) => counts[a] - counts[b]).slice(0, 4);
     chosen = minCandidates[Math.floor(Math.random() * minCandidates.length)];
   } else {
     chosen = candidates[Math.floor(Math.random() * candidates.length)];
@@ -914,9 +913,9 @@ function showTrainingFeedback(isSuccess) {
   if (state.mode !== "train" && state.mode !== "think") return;
 
   if (isSuccess === true) {
-    streak += 1;
     animateStreak(elements.streakIndicatorCanvas);
   }
+  streak += 1;
 
   updateStreak(streak);
 
