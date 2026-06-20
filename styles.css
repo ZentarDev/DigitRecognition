@@ -136,6 +136,10 @@ h1 {
   color: var(--streak);
 }
 
+#database-indicator i {
+  color: var(--danger);
+}
+
 .status {
   display: none;
 }

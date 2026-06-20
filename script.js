@@ -32,6 +32,7 @@ const elements = {
   canvIcon: $("canv-mode-indicator"),
   streakIndicator: $("streak-indicator"),
   streakIndicatorCanvas: $("streak-indicator-canvas"),
+  databaseIndicator: $("database-indicator"),
   prediction: $("prediction"),
   confidence: $("confidence"),
   errorMessage: $("error-message"),
@@ -64,6 +65,8 @@ const state = {
 
 let probabilityBars = [];
 let streak = 0;
+let digitCountsCache = null;
+let databaseCount = 0;
 
 const modal = document.getElementById("modal");
 const openPopupButton = document.getElementById("open-popup");
@@ -93,6 +96,7 @@ function init() {
   syncResponsivePanels();
   updateModeUI();
   loadModel();
+  initDatabaseIndicator();
 }
 
 function bindEvents() {
@@ -136,29 +140,55 @@ function bindEvents() {
   }
 }
 
-async function saveDigitToDatabase(aiPrediction, isCorrect, trueLabel) {
-    try {
-        const base64Image = elements.previewCanvas.toDataURL('image/png');
+async function initDatabaseIndicator() {
+  try {
+    const { count, error } = await supabaseClient
+      .from('digits')
+      .select('*', { count: 'exact', head: true });
 
-        const { error } = await supabaseClient
-            .from('digits')
-            .insert({ 
-                image_base64: base64Image, 
-                prediction: aiPrediction, 
-                correct: isCorrect,
-                true_label: trueLabel
-            });
-
-        if (error) {
-            console.error('Error saving data to Supabase:', error.message);
-        } else {
-            digitCountsCache = null;
-        }
-
-    } catch (err) {
-        console.error('Unexpected error while saving digit:', err);
+    if (error) {
+      console.error('Error fetching count:', error.message);
+      return;
     }
+
+    databaseCount = count;
+    updateDatabaseIndicator(databaseCount);
+  } catch (err) {
+    console.error('Unexpected error fetching count:', err);
+  }
 }
+
+async function saveDigitToDatabase(aiPrediction, isCorrect, trueLabel) {
+  try {
+    const base64Image = elements.previewCanvas.toDataURL('image/png');
+
+    const { error } = await supabaseClient
+      .from('digits')
+      .insert({ 
+        image_base64: base64Image, 
+        prediction: aiPrediction, 
+        correct: isCorrect,
+        true_label: trueLabel
+      });
+
+    if (error) {
+      console.error('Error saving data to Supabase:', error.message);
+    } else {
+      digitCountsCache = null;
+
+      databaseCount += 1;
+      updateDatabaseIndicator(databaseCount);
+    }
+
+  } catch (err) {
+    console.error('Unexpected error while saving digit:', err);
+  }
+}
+
+function updateDatabaseIndicator(n) {
+  elements.databaseIndicator.innerHTML = `<i class="fa-solid fa-database"></i> ${resumeDatabaseDigit(n)}`;
+}
+
 function showPopup() {
   modal.hidden = false;
 }
@@ -810,7 +840,32 @@ function problemKey(problem) {
   return problem.left + "|" + problem.operator + "|" + problem.right;
 }
 
-let digitCountsCache = null;
+function resumeDatabaseDigit(digit) {
+  let sdigit = String(digit);
+
+  if (digit - 1000000000000 >= 0) {
+    if (sdigit.at(-12) !== "0") {
+      return sdigit.slice(0, -12) + "," + sdigit.at(-12) + "B";
+    }
+    return sdigit.slice(0, -12) + "B";
+  }
+
+  if (digit - 1000000 >= 0) {
+    if (sdigit.at(-6) !== "0") {
+      return sdigit.slice(0, -6) + "," + sdigit.at(-6) + "M";
+    }
+    return sdigit.slice(0, -6) + "M";
+  }
+
+  if (digit - 1000 >= 0) {
+    if (sdigit.at(-3) !== "0") {
+      return sdigit.slice(0, -3) + "," + sdigit.at(-3) + "k";
+    }
+    return sdigit.slice(0, -3) + "k";
+  }
+
+  return sdigit;
+}
 
 async function fetchDigitCounts() {
   if (digitCountsCache) return digitCountsCache;
