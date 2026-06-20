@@ -141,6 +141,7 @@ function bindEvents() {
 }
 
 async function initDatabaseIndicator() {
+  loading_popup.hidden = false;
   try {
     const { count, error } = await supabaseClient
       .from('digits')
@@ -155,6 +156,9 @@ async function initDatabaseIndicator() {
     updateDatabaseIndicator(databaseCount);
   } catch (err) {
     console.error('Unexpected error fetching count:', err);
+  } finally {
+    await sleep(100);
+    loading_popup.hidden = true;
   }
 }
 
@@ -165,8 +169,8 @@ async function saveDigitToDatabase(aiPrediction, isCorrect, trueLabel) {
     const { error } = await supabaseClient
       .from('digits')
       .insert({ 
-        image_base64: base64Image, 
-        prediction: aiPrediction, 
+        image_base64: base64Image,
+        prediction: aiPrediction,
         correct: isCorrect,
         true_label: trueLabel
       });
