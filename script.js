@@ -89,7 +89,7 @@ function setModeIcon(iconClass) {
   elements.canvIcon.className = `hint fa-solid ${iconClass}`;
 }
 
-function init() {
+async function init() {
   showLoad();
 
   setupCanvases();
@@ -97,10 +97,12 @@ function init() {
   bindEvents();
   syncResponsivePanels();
   updateModeUI();
-  loadModel();
-  initDatabaseIndicator();
 
-  await sleep(100);
+  await Promise.all([
+    loadModel(),
+    initDatabaseIndicator(),
+  ]);
+
   hideLoad();
 }
 
@@ -715,23 +717,27 @@ async function setMode(mode) {
   clearCanvas(true);
   showLoad();
 
-  if (mode === "think") {
-    elements.streakIndicator.style.visibility = "visible"
-    elements.streakIndicatorCanvas.style.visibility = "visible"
-    setModeIcon("fa-brain");
-    state.thinkProblem = await createThinkProblem();
-    startThinkRound();
-  } else if (mode === "train") {
-    elements.streakIndicator.style.visibility = "visible"
-    elements.streakIndicatorCanvas.style.visibility = "visible"
-    setModeIcon("fa-dumbbell");
-    state.targetDigit = await nextTrainingDigit();
-    setModeMessage();
-  } else {
-    elements.streakIndicator.style.visibility = "hidden"
-    elements.streakIndicatorCanvas.style.visibility= "hidden"
-    setModeIcon("fa-pencil");
-    setModeMessage();
+  try {
+    if (mode === "think") {
+      elements.streakIndicator.style.visibility = "visible";
+      elements.streakIndicatorCanvas.style.visibility = "visible";
+      setModeIcon("fa-brain");
+      state.thinkProblem = await createThinkProblem();
+      startThinkRound();
+    } else if (mode === "train") {
+      elements.streakIndicator.style.visibility = "visible";
+      elements.streakIndicatorCanvas.style.visibility = "visible";
+      setModeIcon("fa-dumbbell");
+      state.targetDigit = await nextTrainingDigit();
+      setModeMessage();
+    } else {
+      elements.streakIndicator.style.visibility = "hidden";
+      elements.streakIndicatorCanvas.style.visibility = "hidden";
+      setModeIcon("fa-pencil");
+      setModeMessage();
+    }
+  } finally {
+    hideLoad();
   }
 }
 
@@ -749,25 +755,20 @@ function setModeMessage() {
     elements.modeMessage.textContent = state.targetDigit === null
       ? "Prepare the next digit."
       : "Draw the digit " + state.targetDigit + ".";
-    hideLoad();
-
     return;
   }
 
   if (state.mode === "think") {
     if (!state.thinkProblem) {
       elements.modeMessage.textContent = "Draw the result of a simple operation.";
-      hideLoad();
       return;
     }
 
     elements.modeMessage.textContent = "Draw the result of " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
-    hideLoad();
     return;
   }
 
   elements.modeMessage.textContent = "Draw a digit and press predict.";
-  hideLoad();
 }
 
 function startThinkRound() {
