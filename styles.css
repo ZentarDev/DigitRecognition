@@ -75,6 +75,37 @@ body {
   justify-content: center;
 }
 
+[data-shower] {
+  position: relative;
+  cursor: pointer;
+}
+
+[data-shower]::after {
+  content: attr(data-shower);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  transition-delay: 0s;
+  z-index: 10;
+}
+
+[data-shower]:hover::after {
+  opacity: 1;
+  transition-delay: 0.6s;
+}
+
 .card {
   background: var(--panel-soft);
   border: 1px solid var(--border-color);

@@ -16,8 +16,8 @@
     <div class="title-header">
       <div class="hero-top">
         <h1 class="centered" style="flex: 1; text-align: center;">Digit Recognition</h1>
-        <span id="database-indicator" class="hint"><i class="fa-solid fa-database"></i> 0</span>
-        <span id="model-status" class="status"></span>
+        <span id="database-indicator" class="hint" data-shower="The number of digits in the database"><i class="fa-solid fa-database"></i> 0</span>        
+        <span id="model-status" class="status" data-shower="See the console error for more information"></span>
     </div>
 
     <div class="mode-controls">
@@ -50,7 +50,7 @@
         <div id="draw-content" class="draw-content">
           <div class="panel-header">
           <h2 style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center;">
-            <span id="streak-indicator" class="hint" style="justify-self:start; visibility:hidden;">
+            <span id="streak-indicator" class="hint" style="justify-self:start; visibility:hidden;" data-shower="The number of digits saved in the database during this session">
               <i class="fa-solid fa-fire"></i> 0
             </span>
             Canvas
@@ -72,7 +72,7 @@
 
       <article id="results-card" class="card panel results">
         <h2 style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center;">
-          <span id="streak-indicator-canvas" class="hint" style="justify-self:start; visibility:hidden;">
+          <span id="streak-indicator-canvas" class="hint" style="justify-self:start; visibility:hidden;" data-shower="The number of digits saved in the database during this session">
             <i class="fa-solid fa-fire"></i> 0
           </span>
           Prediction
@@ -81,7 +81,7 @@
         <br>
 
         <div class="result-main">
-          <div class="preview-block">
+          <div class="preview-block" data-shower="Model view">
             <canvas id="preview-canvas" width="28" height="28" aria-label="Preview of the model input"></canvas>
           </div>
 

@@ -240,7 +240,7 @@ async function loadModel() {
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
 
-    loading_popup.hidden = true;
+    // loading_popup.hidden = true;
     elements.modelStatus.classList.remove("error");
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
