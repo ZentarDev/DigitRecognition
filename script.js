@@ -919,7 +919,11 @@ async function smartPickDigit() {
   }
 
   state.recentDigits.push(chosen);
-  if (state.recentDigits.length > 2) state.recentDigits.shift();
+  if (state.recentDigits.length > 4) state.recentDigits.shift();
+
+  if (digitCountsCache) {
+    digitCountsCache[chosen]++;
+  }
 
   return chosen;
 }
