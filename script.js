@@ -90,6 +90,8 @@ function setModeIcon(iconClass) {
 }
 
 function init() {
+  showLoad();
+
   setupCanvases();
   buildProbabilityBars();
   bindEvents();
@@ -97,6 +99,9 @@ function init() {
   updateModeUI();
   loadModel();
   initDatabaseIndicator();
+
+  await sleep(100);
+  hideLoad();
 }
 
 function bindEvents() {
@@ -141,7 +146,6 @@ function bindEvents() {
 }
 
 async function initDatabaseIndicator() {
-  loading_popup.hidden = false;
   try {
     const { count, error } = await supabaseClient
       .from('digits')
@@ -156,9 +160,6 @@ async function initDatabaseIndicator() {
     updateDatabaseIndicator(databaseCount);
   } catch (err) {
     console.error('Unexpected error fetching count:', err);
-  } finally {
-    await sleep(100);
-    loading_popup.hidden = true;
   }
 }
 
@@ -201,6 +202,14 @@ function hidePopup() {
   modal.hidden = true;
 }
 
+function showLoad() {
+  loading_popup.hidden = false;
+}
+
+function hideLoad() {
+  loading_popup.hidden = true;
+}
+
 function setupCanvases() {
   elements.predictButton.disabled = true;
 
@@ -232,15 +241,12 @@ async function loadModel() {
     if (typeof tf === "undefined") throw new Error("TensorFlow.js has not been loaded.");
     if (window.location.protocol === "file:") throw new Error("Use a local server, not file://.");
     
-    loading_popup.hidden = false;
     const response = await fetch(MODEL_URL);
     if (!response.ok) throw new Error("Could not download model.json (" + response.status + ")");
-    await sleep(500);
 
     const modelJson = normalizeModelJson(await response.json());
     state.model = await tf.loadLayersModel({ load: () => buildModelArtifacts(modelJson) });
 
-    loading_popup.hidden = true;
     elements.modelStatus.classList.remove("error");
     elements.modelStatus.classList.add("ok");
     elements.predictButton.disabled = false;
@@ -707,7 +713,7 @@ async function setMode(mode) {
   updateModeUI();
   hideTrainingFeedback();
   clearCanvas(true);
-  loading_popup.hidden = false;
+  showLoad();
 
   if (mode === "think") {
     elements.streakIndicator.style.visibility = "visible"
@@ -743,7 +749,7 @@ function setModeMessage() {
     elements.modeMessage.textContent = state.targetDigit === null
       ? "Prepare the next digit."
       : "Draw the digit " + state.targetDigit + ".";
-    loading_popup.hidden = true;
+    hideLoad();
 
     return;
   }
@@ -751,17 +757,17 @@ function setModeMessage() {
   if (state.mode === "think") {
     if (!state.thinkProblem) {
       elements.modeMessage.textContent = "Draw the result of a simple operation.";
-      loading_popup.hidden = true;
+      hideLoad();
       return;
     }
 
     elements.modeMessage.textContent = "Draw the result of " + state.thinkProblem.left + " " + state.thinkProblem.operator + " " + state.thinkProblem.right + ".";
-    loading_popup.hidden = true;
+    hideLoad();
     return;
   }
 
   elements.modeMessage.textContent = "Draw a digit and press predict.";
-  loading_popup.hidden = true;
+  hideLoad();
 }
 
 function startThinkRound() {
