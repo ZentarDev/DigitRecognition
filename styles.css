@@ -29,12 +29,17 @@ body {
   margin: 0;
   min-height: 100vh;
   background-color: #040712;
-  background-image: 
+  background-image:
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(69, 196, 246, 0.18) 0%, transparent 70%),
+
     radial-gradient(circle at 20% -10%, rgba(69, 196, 246, 0.55) 0%, transparent 70%),
     radial-gradient(circle at 80% 20%, rgba(146, 209, 155, 0.45) 0%, transparent 70%),
-    radial-gradient(circle at 40% 70%, rgba(157, 78, 221, 0.4) 0%, transparent 80%);
+    radial-gradient(circle at 40% 70%, rgba(78, 92, 221, 0.4) 0%, transparent 80%),
+
+    linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255, 0.15) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
   background-attachment: fixed;
-  color: var(--text);
 }
 
 @media (prefers-color-scheme: light) {
@@ -52,16 +57,34 @@ body {
   }
 
   body {
-    margin: 0;
-    min-height: 100vh;
     background-color: #7b91df;
-    background-image: 
+    background-image:
+      radial-gradient(ellipse 55% 38% at 50% 50%, rgba(255,255,255,0.45) 0%, transparent 65%),
+
       radial-gradient(circle at 20% -10%, rgba(69, 196, 246, 0.55) 0%, transparent 70%),
       radial-gradient(circle at 80% 20%, rgba(146, 209, 155, 0.45) 0%, transparent 70%),
-      radial-gradient(circle at 40% 70%, rgba(157, 78, 221, 0.4) 0%, transparent 80%);
+      radial-gradient(circle at 40% 70%, rgba(157, 78, 221, 0.4) 0%, transparent 80%),
+
+      linear-gradient(rgba(255,255,255,0.30) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.30) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
     background-attachment: fixed;
-    color: var(--text);
   }
+
+  body::before {
+    mix-blend-mode: multiply;
+    opacity: 0.08;
+  }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .app {
