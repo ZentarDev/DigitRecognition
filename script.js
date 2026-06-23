@@ -333,6 +333,15 @@ function clearCanvas(reset=false) {
   syncResponsivePanels();
 }
 
+function isCanvasEmpty() {
+  const pixels = drawContext.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i] > 30 || pixels[i + 1] > 30 || pixels[i + 2] > 30) {
+      return false;
+    }
+  }
+  return true;
+}
 
 async function predictDigit() {
   await sleep(100);
@@ -341,6 +350,15 @@ async function predictDigit() {
   if (!state.model) {
     elements.confidence.textContent = "Model is not ready yet";
     showError("Model has not been loaded. Check the status message above.");
+    return;
+  }
+
+  if (isCanvasEmpty()) {
+    elements.prediction.textContent = "?";
+    elements.confidence.textContent = "";
+    showError("Draw a digit on the canvas first.");
+    state.readyVisible = true;
+    syncResponsivePanels();
     return;
   }
 
