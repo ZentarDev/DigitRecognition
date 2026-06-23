@@ -40,6 +40,10 @@ An automated pipeline runs every day via GitHub Actions to fetch new submissions
 
 To try it without installing anything, visit this [link](https://zentardev.github.io/DigitRecognition).
 
+<p align="center">
+    <img src="./assets/images/screenshot.png" alt="Screenshot of the game" width="1000">
+</p>
+
 ## Run locally
 
 You cannot open `index.html` with `file://`. Use a local server:
