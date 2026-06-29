@@ -43,17 +43,3 @@ To try it without installing anything, visit this [link](https://zentardev.githu
 <p align="center">
     <img src="./assets/images/screenshot.png" alt="Screenshot of the game" width="1000">
 </p>
-
-## Run locally
-
-You cannot open `index.html` with `file://`. Use a local server:
-
-```bash
-python3 -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000
-```
